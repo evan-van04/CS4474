@@ -1,0 +1,23 @@
+/*Stores color palette and reusable values.*/
+
+:root {
+  --color-coral: #e76f51;
+  --color-navy: #4a678a;
+  --color-steel: #86a9bf;
+  --color-light: #b7d1d6;
+  --color-white: #ffffff;
+  --color-bg: #f5f7fa;
+  --color-text: #243447;
+
+  --radius-lg: 20px;
+  --radius-md: 12px;
+
+  --shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.08);
+
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+
+  --font-main: Arial, Helvetica, sans-serif;
+}
