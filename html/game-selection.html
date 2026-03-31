@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spelling Central - Game Selection</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/game-selection.css" />
+</head>
+<body>
+  <main class="game-selection-screen">
+    <header class="top-bar">
+      <a href="home-screen.html" class="nav-button nav-left" aria-label="Go Home">
+        <img src="../assets/home.png" alt="" class="nav-icon" />
+        <span class="nav-label">HOME</span>
+      </a>
+
+      <div class="top-title-wrap">
+        <img src="../assets/title.png" alt="Spelling Central" class="top-title-image" />
+      </div>
+
+      <button class="nav-button nav-right back-button" type="button" aria-label="Go Back" onclick="history.back()">
+        <img src="../assets/back.png" alt="" class="nav-icon" />
+        <span class="nav-label">BACK</span>
+      </button>
+    </header>
+
+    <section class="game-selection-content">
+      <img src="../assets/cloud-left.png" alt="" class="cloud cloud-left-mid" />
+      <img src="../assets/cloud-right.png" alt="" class="cloud cloud-right-bottom" />
+
+      <h1 class="page-title">Select Game to Play!</h1>
+
+      <section class="game-row" aria-label="Select a game">
+        <a href="word-search.html" class="game-card" aria-label="Play Word Search">
+          <img src="../assets/word-search.png" alt="Word Search" class="game-image" />
+        </a>
+
+        <a href="alphabetical.html" class="game-card" aria-label="Play Alphabetical">
+          <img src="../assets/alphabetical.png" alt="Alphabetical" class="game-image" />
+        </a>
+
+        <a href="mixed-words.html" class="game-card" aria-label="Play Mixed Words">
+          <img src="../assets/mixed-words.png" alt="Mixed Words" class="game-image" />
+        </a>
+
+        <a href="missing-letter.html" class="game-card" aria-label="Play Missing Letter">
+          <img src="../assets/missing-letter.png" alt="Missing Letter" class="game-image" />
+        </a>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spelling Central - Input Words</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/input-words.css" />
+</head>
+<body>
+  <main class="input-screen">
+    <header class="top-bar">
+      <a href="home-screen.html" class="nav-button nav-left" aria-label="Go Home">
+        <img src="../assets/home.png" alt="" class="nav-icon" />
+        <span class="nav-label">HOME</span>
+      </a>
+
+      <div class="top-title-wrap">
+        <img src="../assets/title.png" alt="Spelling Central" class="top-title-image" />
+      </div>
+
+      <button class="nav-button nav-right back-button" type="button" aria-label="Go Back" onclick="history.back()">
+        <img src="../assets/back.png" alt="" class="nav-icon" />
+        <span class="nav-label">BACK</span>
+      </button>
+    </header>
+
+    <section class="input-content">
+      <h1 class="page-title">Input Words</h1>
+
+      <img src="../assets/cloud-left.png" alt="" class="cloud cloud-left-mid" />
+      <img src="../assets/cloud-right.png" alt="" class="cloud cloud-right-bottom" />
+
+      <section class="word-grid" aria-label="Word input list">
+        <label class="word-card"><span class="word-number">1</span><input type="text" class="word-input" maxlength="18" data-slot="1" /></label>
+        <label class="word-card"><span class="word-number">2</span><input type="text" class="word-input" maxlength="18" data-slot="2" /></label>
+        <label class="word-card"><span class="word-number">3</span><input type="text" class="word-input" maxlength="18" data-slot="3" /></label>
+        <label class="word-card"><span class="word-number">4</span><input type="text" class="word-input" maxlength="18" data-slot="4" /></label>
+        <label class="word-card"><span class="word-number">5</span><input type="text" class="word-input" maxlength="18" data-slot="5" /></label>
+        <label class="word-card"><span class="word-number">6</span><input type="text" class="word-input" maxlength="18" data-slot="6" /></label>
+        <label class="word-card"><span class="word-number">7</span><input type="text" class="word-input" maxlength="18" data-slot="7" /></label>
+        <label class="word-card"><span class="word-number">8</span><input type="text" class="word-input" maxlength="18" data-slot="8" /></label>
+        <label class="word-card"><span class="word-number">9</span><input type="text" class="word-input" maxlength="18" data-slot="9" /></label>
+        <label class="word-card"><span class="word-number">10</span><input type="text" class="word-input" maxlength="18" data-slot="10" /></label>
+        <label class="word-card"><span class="word-number">11</span><input type="text" class="word-input" maxlength="18" data-slot="11" /></label>
+        <label class="word-card"><span class="word-number">12</span><input type="text" class="word-input" maxlength="18" data-slot="12" /></label>
+        <label class="word-card"><span class="word-number">13</span><input type="text" class="word-input" maxlength="18" data-slot="13" /></label>
+        <label class="word-card"><span class="word-number">14</span><input type="text" class="word-input" maxlength="18" data-slot="14" /></label>
+        <label class="word-card"><span class="word-number">15</span><input type="text" class="word-input" maxlength="18" data-slot="15" /></label>
+        <label class="word-card"><span class="word-number">16</span><input type="text" class="word-input" maxlength="18" data-slot="16" /></label>
+        <label class="word-card"><span class="word-number">17</span><input type="text" class="word-input" maxlength="18" data-slot="17" /></label>
+        <label class="word-card"><span class="word-number">18</span><input type="text" class="word-input" maxlength="18" data-slot="18" /></label>
+        <label class="word-card"><span class="word-number">19</span><input type="text" class="word-input" maxlength="18" data-slot="19" /></label>
+        <label class="word-card"><span class="word-number">20</span><input type="text" class="word-input" maxlength="18" data-slot="20" /></label>
+      </section>
+
+      <button class="confirm-button" id="confirmButton" type="button" aria-label="Confirm words">
+        <img src="../assets/check.png" alt="" class="check-icon" />
+      </button>
+    </section>
+
+    <!-- Error Popup -->
+    <div class="modal-overlay hidden" id="errorModal" aria-hidden="true">
+      <div class="error-modal" role="dialog" aria-modal="true" aria-labelledby="errorMessage">
+        <img src="../assets/error-cloud.png" alt="" class="error-cloud" />
+        <p class="error-message" id="errorMessage">Please input at least 5 words.</p>
+        <button class="error-close-button" id="closeErrorModal" type="button">OK</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/input-words.js"></script>
+</body>
+</html>
