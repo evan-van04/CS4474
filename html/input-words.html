@@ -63,16 +63,26 @@
       </button>
     </section>
 
-    <!-- Error Popup -->
-    <div class="modal-overlay hidden" id="errorModal" aria-hidden="true">
-      <div class="error-modal" role="dialog" aria-modal="true" aria-labelledby="errorMessage">
+    <!-- Not Enough Words Popup -->
+    <div class="modal-overlay hidden" id="countErrorModal" aria-hidden="true">
+      <div class="error-modal" role="dialog" aria-modal="true" aria-labelledby="countErrorMessage">
         <img src="../assets/error-cloud.png" alt="" class="error-cloud" />
-        <p class="error-message" id="errorMessage">Please input at least 5 words.</p>
-        <button class="error-close-button" id="closeErrorModal" type="button">OK</button>
+        <p class="error-message" id="countErrorMessage">Please input at least 5 words.</p>
+        <button class="error-close-button" id="closeCountErrorModal" type="button">OK</button>
+      </div>
+    </div>
+
+    <!-- Invalid Word Popup -->
+    <div class="modal-overlay hidden" id="invalidWordModal" aria-hidden="true">
+      <div class="error-modal" role="dialog" aria-modal="true" aria-labelledby="invalidWordMessage">
+        <img src="../assets/error-cloud.png" alt="" class="error-cloud" />
+        <p class="error-message" id="invalidWordMessage">One or more words are not in the word bank.</p>
+        <button class="error-close-button" id="closeInvalidWordModal" type="button">OK</button>
       </div>
     </div>
   </main>
 
+  <script src="../js/word-bank.js"></script>
   <script src="../js/input-words.js"></script>
 </body>
 </html>
