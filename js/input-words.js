@@ -1,15 +1,18 @@
 const MINIMUM_REQUIRED_WORDS = 5;
 const STORAGE_KEY = "spellingCentralWords";
-const WORD_BANK_PATH = "../json/word-bank.json";
 
 const inputs = Array.from(document.querySelectorAll(".word-input"));
 const confirmButton = document.getElementById("confirmButton");
-const errorModal = document.getElementById("errorModal");
-const errorMessage = document.getElementById("errorMessage");
-const closeErrorModalButton = document.getElementById("closeErrorModal");
+
+const countErrorModal = document.getElementById("countErrorModal");
+const countErrorMessage = document.getElementById("countErrorMessage");
+const closeCountErrorModalButton = document.getElementById("closeCountErrorModal");
+
+const invalidWordModal = document.getElementById("invalidWordModal");
+const invalidWordMessage = document.getElementById("invalidWordMessage");
+const closeInvalidWordModalButton = document.getElementById("closeInvalidWordModal");
 
 let validWordSet = new Set();
-let wordBankLoaded = false;
 
 function normalizeWord(value) {
   return value.trim().toLowerCase();
@@ -29,17 +32,36 @@ function getFilledWords() {
     .filter((entry) => entry.normalized.length > 0);
 }
 
+function buildWordSet() {
+  if (!Array.isArray(WORD_BANK)) {
+    console.error("WORD_BANK is missing or invalid.");
+    return;
+  }
+
+  validWordSet = new Set(
+    WORD_BANK
+      .map((entry) => {
+        if (!entry || typeof entry.word !== "string") {
+          return "";
+        }
+
+        return normalizeWord(entry.word);
+      })
+      .filter((word) => word.length > 0)
+  );
+}
+
 function saveWordsToStorage() {
   const filledWords = getFilledWords().map((entry) => ({
     slot: entry.slot,
     value: entry.value,
   }));
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filledWords));
+  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(filledWords));
 }
 
 function loadWordsFromStorage() {
-  const raw = localStorage.getItem(STORAGE_KEY);
+  const raw = sessionStorage.getItem(STORAGE_KEY);
 
   if (!raw) {
     return;
@@ -66,50 +88,37 @@ function loadWordsFromStorage() {
   }
 }
 
-async function loadWordBank() {
-  try {
-    const response = await fetch(WORD_BANK_PATH);
-
-    if (!response.ok) {
-      throw new Error(`Failed to load word bank: ${response.status}`);
-    }
-
-    const wordBank = await response.json();
-
-    if (!Array.isArray(wordBank)) {
-      throw new Error("Word bank is not a valid array.");
-    }
-
-    validWordSet = new Set(
-      wordBank
-        .map((entry) => {
-          if (!entry || typeof entry.word !== "string") {
-            return "";
-          }
-
-          return normalizeWord(entry.word);
-        })
-        .filter((word) => word.length > 0)
-    );
-
-    wordBankLoaded = true;
-  } catch (error) {
-    console.error("Could not load word bank:", error);
-    wordBankLoaded = false;
-  }
+function clearWordsFromStorage() {
+  sessionStorage.removeItem(STORAGE_KEY);
 }
 
-function showErrorModal(message) {
-  errorMessage.textContent = message;
-  errorModal.classList.remove("hidden");
-  errorModal.setAttribute("aria-hidden", "false");
+function showModal(modalElement) {
+  modalElement.classList.remove("hidden");
+  modalElement.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
 }
 
-function hideErrorModal() {
-  errorModal.classList.add("hidden");
-  errorModal.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
+function hideModal(modalElement) {
+  modalElement.classList.add("hidden");
+  modalElement.setAttribute("aria-hidden", "true");
+
+  const anyModalOpen =
+    !countErrorModal.classList.contains("hidden") ||
+    !invalidWordModal.classList.contains("hidden");
+
+  if (!anyModalOpen) {
+    document.body.style.overflow = "";
+  }
+}
+
+function showCountError(message) {
+  countErrorMessage.textContent = message;
+  showModal(countErrorModal);
+}
+
+function showInvalidWordError(message) {
+  invalidWordMessage.textContent = message;
+  showModal(invalidWordModal);
 }
 
 function getInvalidWords(filledWords) {
@@ -117,42 +126,38 @@ function getInvalidWords(filledWords) {
 }
 
 function buildInvalidWordsMessage(invalidWords) {
-  const invalidList = invalidWords.map((entry) => entry.value).join(", ");
+  const invalidList = invalidWords.map((entry) => `"${entry.value}"`).join(", ");
 
   if (invalidWords.length === 1) {
-    return `"${invalidList}" is not in the word bank. Please enter a real supported word.`;
+    return `${invalidList} is not in the word bank. Please enter a real supported word.`;
   }
 
   return `These words are not in the word bank: ${invalidList}. Please enter real supported words.`;
 }
 
-async function handleConfirm() {
+function handleConfirm() {
   const filledWords = getFilledWords();
 
   saveWordsToStorage();
 
   if (filledWords.length < MINIMUM_REQUIRED_WORDS) {
-    showErrorModal(`Please input at least ${MINIMUM_REQUIRED_WORDS} words.`);
+    showCountError(`Please input at least ${MINIMUM_REQUIRED_WORDS} words.`);
     return;
   }
 
-  if (!wordBankLoaded) {
-    await loadWordBank();
-  }
-
-  if (!wordBankLoaded) {
-    showErrorModal("The word bank could not be loaded. Please try again.");
+  if (validWordSet.size === 0) {
+    showInvalidWordError("The word bank could not be loaded. Please try again.");
     return;
   }
 
   const invalidWords = getInvalidWords(filledWords);
 
   if (invalidWords.length > 0) {
-    showErrorModal(buildInvalidWordsMessage(invalidWords));
+    showInvalidWordError(buildInvalidWordsMessage(invalidWords));
     return;
   }
 
-  localStorage.setItem(
+  sessionStorage.setItem(
     STORAGE_KEY,
     JSON.stringify(
       filledWords.map((entry) => ({
@@ -172,28 +177,55 @@ function handleInputChange(event) {
   saveWordsToStorage();
 }
 
+function handleEscapeKey(event) {
+  if (event.key !== "Escape") {
+    return;
+  }
+
+  if (!countErrorModal.classList.contains("hidden")) {
+    hideModal(countErrorModal);
+  }
+
+  if (!invalidWordModal.classList.contains("hidden")) {
+    hideModal(invalidWordModal);
+  }
+}
+
 inputs.forEach((input) => {
   input.addEventListener("input", handleInputChange);
 });
 
 confirmButton.addEventListener("click", handleConfirm);
-closeErrorModalButton.addEventListener("click", hideErrorModal);
 
-errorModal.addEventListener("click", (event) => {
-  if (event.target === errorModal) {
-    hideErrorModal();
+closeCountErrorModalButton.addEventListener("click", () => {
+  hideModal(countErrorModal);
+});
+
+closeInvalidWordModalButton.addEventListener("click", () => {
+  hideModal(invalidWordModal);
+});
+
+countErrorModal.addEventListener("click", (event) => {
+  if (event.target === countErrorModal) {
+    hideModal(countErrorModal);
   }
 });
 
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !errorModal.classList.contains("hidden")) {
-    hideErrorModal();
+invalidWordModal.addEventListener("click", (event) => {
+  if (event.target === invalidWordModal) {
+    hideModal(invalidWordModal);
   }
 });
 
-async function initializeInputWordsPage() {
+document.addEventListener("keydown", handleEscapeKey);
+
+window.addEventListener("beforeunload", () => {
+  saveWordsToStorage();
+});
+
+function initializeInputWordsPage() {
+  buildWordSet();
   loadWordsFromStorage();
-  await loadWordBank();
 }
 
 initializeInputWordsPage();
