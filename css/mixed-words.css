@@ -16,6 +16,22 @@
   --incorrect-stroke: #cc1730;
   --neutral-fill: #8fa6bb;
   --neutral-stroke: #7b93aa;
+
+  --mw-shell-width: 940px;
+  --mw-shell-min-height: 450px;
+  --mw-shell-before-inset: 22% 20% 26% 20%;
+  --mw-title-size: 4.35rem;
+  --mw-title-gap: 14px;
+  --mw-instruction-size: 1.1rem;
+  --mw-instruction-margin: 20px;
+  --mw-tile-size: 72px;
+  --mw-tile-gap: 12px;
+  --mw-letter-font-size: 2.3rem;
+  --mw-hint-min-width: 430px;
+  --mw-hint-max-width: 560px;
+  --mw-hint-font-size: 1.1rem;
+  --mw-progress-min-width: 132px;
+  --mw-progress-font-size: 2rem;
 }
 
 * {
@@ -125,7 +141,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 24px 34px;
+  height: 100%;
+  padding: 18px 18px 20px;
   overflow: hidden;
 }
 
@@ -152,8 +169,8 @@ a {
 .game-shell {
   position: relative;
   z-index: 2;
-  width: min(940px, 100%);
-  min-height: 450px;
+  width: min(var(--mw-shell-width), 100%);
+  min-height: var(--mw-shell-min-height);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -163,20 +180,31 @@ a {
 .game-shell::before {
   content: "";
   position: absolute;
-  inset: 22% 20% 26% 20%;
+  inset: var(--mw-shell-before-inset);
   border-radius: 999px;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.08) 58%, rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
 }
 
 .page-title {
-  margin: 0 0 24px;
+  margin: 0 0 var(--mw-title-gap);
   text-align: center;
   font-family: "Titan One", cursive;
-  font-size: clamp(3rem, 5vw, 4.35rem);
+  font-size: var(--mw-title-size);
   line-height: 0.95;
   color: var(--title-blue);
   text-shadow: 5px 5px 0 var(--title-shadow);
+}
+
+.game-instruction {
+  margin: 0 0 var(--mw-instruction-margin);
+  max-width: 820px;
+  text-align: center;
+  font-family: "Inter", sans-serif;
+  font-size: var(--mw-instruction-size);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--nav-blue);
 }
 
 .letters-wrap {
@@ -188,17 +216,17 @@ a {
 
 .letters-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: 12px;
-  width: 100%;
-  max-width: 780px;
-  min-height: 88px;
+  gap: var(--mw-tile-gap);
+  width: fit-content;
+  max-width: 100%;
+  min-height: var(--mw-tile-size);
 }
 
 .letter-tile {
-  width: clamp(54px, 5vw, 72px);
-  height: clamp(54px, 5vw, 72px);
+  width: var(--mw-tile-size);
+  height: var(--mw-tile-size);
   border-radius: 10px;
   border: 3px solid transparent;
   box-shadow: 0 7px 14px rgba(0, 0, 0, 0.12);
@@ -206,12 +234,13 @@ a {
   align-items: center;
   justify-content: center;
   font-family: "Titan One", cursive;
-  font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+  font-size: var(--mw-letter-font-size);
   line-height: 1;
   color: var(--dark-blue);
   user-select: none;
   cursor: grab;
   transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+  flex: 0 0 auto;
 }
 
 .letter-tile:hover {
@@ -260,20 +289,20 @@ a {
 .hint-bubble {
   margin: 0 0 18px;
   padding: 0 26px;
-  min-width: min(430px, 86vw);
-  max-width: min(560px, 90vw);
+  min-width: min(var(--mw-hint-min-width), 88vw);
+  max-width: min(var(--mw-hint-max-width), 90vw);
   font-family: "Inter", sans-serif;
-  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  font-size: var(--mw-hint-font-size);
   font-weight: 600;
   line-height: 1.2;
   color: var(--hint-text);
 }
 
 .progress-pill {
-  min-width: 132px;
+  min-width: var(--mw-progress-min-width);
   padding: 0 24px;
   font-family: "Titan One", cursive;
-  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  font-size: var(--mw-progress-font-size);
   line-height: 1;
   color: var(--dark-blue);
 }
@@ -281,12 +310,37 @@ a {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(39, 74, 126, 0.22);
+  background: rgba(39, 74, 126, 0.28);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 24px;
+  align-items: center;
+  padding: 20px;
   z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.modal-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-overlay .error-modal,
+.modal-overlay .message-modal {
+  transform: translateY(-120px);
+  opacity: 0;
+  transform-origin: top center;
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.28s ease;
+  will-change: transform, opacity;
+}
+
+.modal-overlay.is-visible .error-modal,
+.modal-overlay.is-visible .message-modal {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .hidden {
@@ -344,52 +398,13 @@ a {
 }
 
 @media (max-width: 900px) {
-  body {
-    overflow-y: auto;
-  }
-
-  .mixed-words-screen {
-    height: auto;
-    min-height: 100vh;
-    grid-template-rows: 90px auto;
-  }
-
-  .mixed-words-content {
-    padding-bottom: 40px;
-  }
-
-  .game-shell {
-    min-height: 420px;
-  }
-
-  .game-shell::before {
-    inset: 18% 8% 22% 8%;
-  }
-
-  .hint-bubble {
-    min-width: min(360px, 90vw);
-  }
-}
-
-@media (max-width: 760px) {
-  body {
-    overflow-y: auto;
-  }
-
-  .mixed-words-screen {
-    height: auto;
-    min-height: 100vh;
-    grid-template-rows: auto auto;
-  }
-
   .top-bar {
-    grid-template-columns: 1fr auto 1fr;
-    padding: 14px 16px;
-    gap: 8px;
+    grid-template-columns: 80px 1fr 80px;
+    padding: 0 14px;
   }
 
   .nav-icon {
-    width: 32px;
+    width: 34px;
   }
 
   .nav-label {
@@ -397,41 +412,11 @@ a {
   }
 
   .top-title-image {
-    width: min(240px, 56vw);
+    width: min(250px, 58vw);
   }
 
   .mixed-words-content {
-    padding: 22px 16px 28px;
-  }
-
-  .page-title {
-    font-size: 2.55rem;
-    margin-bottom: 22px;
-  }
-
-  .letters-row {
-    gap: 10px;
-    max-width: 100%;
-  }
-
-  .letter-tile {
-    width: 56px;
-    height: 56px;
-    font-size: 1.8rem;
-  }
-
-  .hint-bubble {
-    min-width: min(300px, 92vw);
-    max-width: 92vw;
-    min-height: 54px;
-    padding: 0 18px;
-    font-size: 0.98rem;
-  }
-
-  .progress-pill {
-    min-width: 112px;
-    min-height: 52px;
-    font-size: 1.45rem;
+    padding: 14px 10px 16px;
   }
 
   .cloud-left-mid,

@@ -1,19 +1,60 @@
 const STORAGE_KEY = "spellingCentralWords";
-const orderList = document.getElementById("orderList");
-const checkButton = document.getElementById("checkButton");
-const resetButton = document.getElementById("resetButton");
-const messageModal = document.getElementById("messageModal");
-const messageText = document.getElementById("messageText");
-const closeMessageButton = document.getElementById("closeMessageButton");
-const emptyState = document.getElementById("emptyState");
 
-let currentWords = [];
-let alphabeticalWords = [];
-let draggedIndex = null;
-let currentDragGhost = null;
+const root = document.documentElement;
+const orderList = document.getElementById("orderList");
+const resetButton = document.getElementById("resetButton");
+const emptyState = document.getElementById("emptyState");
+const completionModal = document.getElementById("completionModal");
+const playAgainButton = document.getElementById("playAgainButton");
+
+const gameState = {
+  originalWords: [],
+  currentWords: [],
+  sortedWords: [],
+  hasMadeFirstMove: false,
+  dragIndex: null,
+  currentDragGhost: null,
+  interactionLocked: false,
+};
 
 function normalizeWord(value) {
-  return String(value).trim().toLowerCase();
+  return String(value || "").trim().toLowerCase();
+}
+
+function toDisplayWord(value) {
+  const trimmed = String(value || "").trim().toLowerCase();
+
+  if (!trimmed) {
+    return "";
+  }
+
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
+function shuffleArray(items) {
+  const copy = [...items];
+
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
+  }
+
+  return copy;
+}
+
+function moveItem(array, fromIndex, toIndex) {
+  const copy = [...array];
+  const [moved] = copy.splice(fromIndex, 1);
+  copy.splice(toIndex, 0, moved);
+  return copy;
+}
+
+function arraysMatchByNormalized(first, second) {
+  if (first.length !== second.length) {
+    return false;
+  }
+
+  return first.every((entry, index) => entry.normalized === second[index].normalized);
 }
 
 function getSavedWords() {
@@ -24,33 +65,44 @@ function getSavedWords() {
   }
 
   try {
-    const savedWords = JSON.parse(raw);
+    const parsed = JSON.parse(raw);
 
-    if (!Array.isArray(savedWords)) {
+    if (!Array.isArray(parsed)) {
       return [];
     }
 
-    return savedWords
-      .filter((entry) => entry && typeof entry.value === "string")
-      .sort((a, b) => Number(a.slot) - Number(b.slot))
-      .map((entry) => ({
-        value: entry.value.trim(),
-        normalized: normalizeWord(entry.value),
-      }))
-      .filter((entry) => entry.normalized.length > 0);
+    return parsed
+      .map((entry) => {
+        const value = typeof entry?.value === "string" ? entry.value.trim() : "";
+
+        return {
+          slot: Number(entry?.slot) || 0,
+          value: toDisplayWord(value),
+          normalized: normalizeWord(value),
+        };
+      })
+      .filter((entry) => entry.normalized.length > 0)
+      .sort((a, b) => a.slot - b.slot);
   } catch (error) {
-    console.error("Could not parse saved words:", error);
+    console.error("Could not read stored words:", error);
     return [];
   }
 }
 
-function shuffleWords(words) {
-  const list = [...words];
-  for (let i = list.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [list[i], list[j]] = [list[j], list[i]];
+function buildShuffledWords(words) {
+  if (words.length <= 1) {
+    return [...words];
   }
-  return list;
+
+  let shuffled = shuffleArray(words);
+  let attempts = 0;
+
+  while (arraysMatchByNormalized(shuffled, words) && attempts < 20) {
+    shuffled = shuffleArray(words);
+    attempts += 1;
+  }
+
+  return shuffled;
 }
 
 function createDragGhost(card) {
@@ -68,31 +120,206 @@ function createDragGhost(card) {
 }
 
 function removeDragGhost() {
-  if (currentDragGhost) {
-    currentDragGhost.remove();
-    currentDragGhost = null;
+  if (gameState.currentDragGhost) {
+    gameState.currentDragGhost.remove();
+    gameState.currentDragGhost = null;
   }
 }
 
-function renderWords(words) {
+const MODAL_CLOSE_DURATION = 380;
+
+function showModal(modalElement) {
+  if (modalElement.hideTimer) {
+    window.clearTimeout(modalElement.hideTimer);
+    modalElement.hideTimer = null;
+  }
+
+  modalElement.classList.remove("hidden");
+  modalElement.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+
+  window.requestAnimationFrame(() => {
+    modalElement.classList.add("is-visible");
+  });
+}
+
+function hideModal(modalElement) {
+  if (modalElement.classList.contains("hidden")) {
+    modalElement.classList.remove("is-visible");
+    modalElement.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    return;
+  }
+
+  modalElement.classList.remove("is-visible");
+  modalElement.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+
+  if (modalElement.hideTimer) {
+    window.clearTimeout(modalElement.hideTimer);
+  }
+
+  modalElement.hideTimer = window.setTimeout(() => {
+    if (!modalElement.classList.contains("is-visible")) {
+      modalElement.classList.add("hidden");
+    }
+    modalElement.hideTimer = null;
+  }, MODAL_CLOSE_DURATION);
+}
+
+function isSolved() {
+  return arraysMatchByNormalized(gameState.currentWords, gameState.sortedWords);
+}
+
+function getCardClass(entry, index) {
+  if (!gameState.hasMadeFirstMove) {
+    return "neutral";
+  }
+
+  return entry.normalized === gameState.sortedWords[index].normalized
+    ? "correct"
+    : "incorrect";
+}
+
+function setResponsiveLayout() {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const isCompact = viewportWidth <= 900;
+
+  const wordCount = Math.max(gameState.currentWords.length, 1);
+  const maxLength = Math.max(
+    ...gameState.currentWords.map((entry) => entry.value.length),
+    ...gameState.sortedWords.map((entry) => entry.value.length),
+    4
+  );
+
+  const headerHeight = isCompact ? 76 : 90;
+
+  let titlePx = isCompact ? 52 : maxLength >= 10 ? 70 : 76;
+  let titleGapPx = isCompact ? 10 : 14;
+  let instructionPx = isCompact ? 15 : 18;
+  let instructionMarginPx = isCompact ? 14 : 20;
+
+  let cardGapPx = isCompact ? 10 : 12;
+  let cardWidthPx = isCompact
+    ? Math.min(250, Math.max(170, maxLength * 11 + 92))
+    : Math.min(270, Math.max(210, maxLength * 12 + 96));
+
+  const minColumns = 1;
+  const maxColumns = Math.min(4, wordCount);
+  const horizontalPadding = isCompact ? 24 : 80;
+  const availableWidth = viewportWidth - horizontalPadding;
+
+  let columns = minColumns;
+
+  for (let candidate = maxColumns; candidate >= minColumns; candidate -= 1) {
+    const totalWidth = candidate * cardWidthPx + (candidate - 1) * cardGapPx;
+
+    if (totalWidth <= availableWidth) {
+      columns = candidate;
+      break;
+    }
+  }
+
+  const rows = Math.ceil(wordCount / columns);
+  const availableHeight =
+    viewportHeight -
+    headerHeight -
+    titlePx -
+    titleGapPx -
+    instructionPx -
+    instructionMarginPx -
+    (isCompact ? 120 : 150);
+
+  let cardMinHeightPx = isCompact ? 68 : 78;
+  let numberColumnPx = isCompact ? 42 : 48;
+  let numberSizePx = isCompact ? 22 : 26;
+  let wordSizePx = isCompact ? 19 : 22;
+  let paddingYPx = isCompact ? 10 : 12;
+  let paddingXPx = isCompact ? 12 : 14;
+  let resetWidthPx = isCompact ? 150 : 180;
+  let resetHeightPx = isCompact ? 50 : 56;
+  let resetFontPx = isCompact ? 15 : 16;
+
+  const estimatedGridHeight = rows * cardMinHeightPx + Math.max(0, rows - 1) * cardGapPx;
+
+  if (estimatedGridHeight > availableHeight) {
+    cardMinHeightPx = Math.max(
+      isCompact ? 56 : 60,
+      Math.floor((availableHeight - Math.max(0, rows - 1) * cardGapPx) / rows)
+    );
+
+    wordSizePx = Math.max(isCompact ? 16 : 18, Math.round(cardMinHeightPx * 0.28));
+    numberSizePx = Math.max(isCompact ? 18 : 20, Math.round(cardMinHeightPx * 0.34));
+    numberColumnPx = Math.max(isCompact ? 34 : 38, Math.round(cardWidthPx * 0.17));
+    paddingYPx = Math.max(8, Math.round(cardMinHeightPx * 0.14));
+    paddingXPx = isCompact ? 10 : 12;
+  }
+
+  if (cardWidthPx * columns + (columns - 1) * cardGapPx > availableWidth) {
+    cardWidthPx = Math.floor(
+      (availableWidth - (columns - 1) * cardGapPx) / columns
+    );
+  }
+
+  if (cardWidthPx < 170) {
+    titlePx = isCompact ? 44 : 60;
+    instructionPx = isCompact ? 14 : 16;
+    instructionMarginPx = 12;
+  }
+
+  const shellWidthPx = Math.min(
+    Math.max(columns * cardWidthPx + (columns - 1) * cardGapPx + (isCompact ? 24 : 40), 320),
+    isCompact ? viewportWidth - 20 : 1120
+  );
+
+  const shellMinHeightPx = Math.min(
+    Math.max(rows * cardMinHeightPx + Math.max(0, rows - 1) * cardGapPx + 170, isCompact ? 340 : 420),
+    viewportHeight - headerHeight - 18
+  );
+
+  root.style.setProperty("--alpha-shell-width", `${shellWidthPx}px`);
+  root.style.setProperty("--alpha-shell-min-height", `${shellMinHeightPx}px`);
+  root.style.setProperty("--alpha-title-size", `${titlePx}px`);
+  root.style.setProperty("--alpha-title-gap", `${titleGapPx}px`);
+  root.style.setProperty("--alpha-instruction-size", `${instructionPx}px`);
+  root.style.setProperty("--alpha-instruction-margin", `${instructionMarginPx}px`);
+  root.style.setProperty("--alpha-grid-columns", String(columns));
+  root.style.setProperty("--alpha-card-width", `${cardWidthPx}px`);
+  root.style.setProperty("--alpha-card-gap", `${cardGapPx}px`);
+  root.style.setProperty("--alpha-card-min-height", `${cardMinHeightPx}px`);
+  root.style.setProperty("--alpha-card-padding-y", `${paddingYPx}px`);
+  root.style.setProperty("--alpha-card-padding-x", `${paddingXPx}px`);
+  root.style.setProperty("--alpha-number-column", `${numberColumnPx}px`);
+  root.style.setProperty("--alpha-number-size", `${numberSizePx}px`);
+  root.style.setProperty("--alpha-word-size", `${wordSizePx}px`);
+  root.style.setProperty("--alpha-reset-width", `${resetWidthPx}px`);
+  root.style.setProperty("--alpha-reset-height", `${resetHeightPx}px`);
+  root.style.setProperty("--alpha-reset-font-size", `${resetFontPx}px`);
+  root.style.setProperty(
+    "--alpha-shell-before-inset",
+    isCompact ? "16% 7% 20% 7%" : "18% 14% 22% 14%"
+  );
+}
+
+function renderWords() {
   orderList.innerHTML = "";
 
-  if (words.length === 0) {
+  if (gameState.currentWords.length === 0) {
     emptyState.classList.remove("hidden");
-    checkButton.disabled = true;
     resetButton.disabled = true;
     return;
   }
 
   emptyState.classList.add("hidden");
-  checkButton.disabled = false;
   resetButton.disabled = false;
 
-  words.forEach((entry, index) => {
+  gameState.currentWords.forEach((entry, index) => {
     const item = document.createElement("li");
-    item.className = "order-card";
-    item.setAttribute("draggable", "true");
-    item.dataset.index = index;
+    item.className = `order-card ${getCardClass(entry, index)}`;
+    item.dataset.index = String(index);
+    item.draggable = !gameState.interactionLocked;
+    item.setAttribute("aria-label", `Position ${index + 1}, ${entry.value}`);
 
     const number = document.createElement("span");
     number.className = "order-number";
@@ -113,27 +340,72 @@ function renderWords(words) {
 
     orderList.appendChild(item);
   });
+
+  setResponsiveLayout();
+}
+
+function evaluateAfterMove() {
+  renderWords();
+
+  if (gameState.hasMadeFirstMove && isSolved()) {
+    gameState.interactionLocked = true;
+    renderWords();
+    showModal(completionModal);
+  }
+}
+
+function handleMove(fromIndex, toIndex) {
+  if (
+    gameState.interactionLocked ||
+    fromIndex === null ||
+    toIndex === null ||
+    fromIndex === toIndex ||
+    fromIndex < 0 ||
+    toIndex < 0 ||
+    fromIndex >= gameState.currentWords.length ||
+    toIndex >= gameState.currentWords.length
+  ) {
+    return;
+  }
+
+  gameState.currentWords = moveItem(gameState.currentWords, fromIndex, toIndex);
+  gameState.hasMadeFirstMove = true;
+  evaluateAfterMove();
 }
 
 function handleDragStart(event) {
+  if (gameState.interactionLocked) {
+    event.preventDefault();
+    return;
+  }
+
   const card = event.currentTarget;
-  draggedIndex = Number(card.dataset.index);
+  gameState.dragIndex = Number(card.dataset.index);
   card.classList.add("dragging");
-  orderList.classList.add("dragging-active");
-  currentDragGhost = createDragGhost(card);
-  event.dataTransfer.setDragImage(currentDragGhost, card.clientWidth / 2, card.clientHeight / 2);
-  event.dataTransfer.setData("text/plain", "");
+  gameState.currentDragGhost = createDragGhost(card);
+
   event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", card.dataset.index);
+  event.dataTransfer.setDragImage(
+    gameState.currentDragGhost,
+    card.clientWidth / 2,
+    card.clientHeight / 2
+  );
 }
 
 function handleDragEnd(event) {
   event.currentTarget.classList.remove("dragging");
-  orderList.classList.remove("dragging-active");
-  orderList.querySelectorAll(".drag-over").forEach((card) => card.classList.remove("drag-over"));
+  orderList.querySelectorAll(".drag-over").forEach((card) => {
+    card.classList.remove("drag-over");
+  });
   removeDragGhost();
 }
 
 function handleDragEnter(event) {
+  if (gameState.interactionLocked) {
+    return;
+  }
+
   event.preventDefault();
   event.currentTarget.classList.add("drag-over");
 }
@@ -143,105 +415,82 @@ function handleDragLeave(event) {
 }
 
 function handleDragOver(event) {
+  if (gameState.interactionLocked) {
+    return;
+  }
+
   event.preventDefault();
   event.dataTransfer.dropEffect = "move";
 }
 
 function handleDrop(event) {
-  event.preventDefault();
-  const card = event.currentTarget;
-  card.classList.remove("drag-over");
-  orderList.querySelectorAll(".drag-over").forEach((card) => card.classList.remove("drag-over"));
-  const targetIndex = Number(card.dataset.index);
-
-  if (draggedIndex === null || draggedIndex === targetIndex) {
-    removeDragGhost();
-    orderList.classList.remove("dragging-active");
+  if (gameState.interactionLocked) {
     return;
   }
 
-  const items = [...currentWords];
-  const [draggedItem] = items.splice(draggedIndex, 1);
-  items.splice(targetIndex, 0, draggedItem);
-  currentWords = items;
-  renderWords(currentWords);
-}
+  event.preventDefault();
 
-function showMessage(message) {
-  messageText.textContent = message;
-  messageModal.classList.remove("hidden");
-  messageModal.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
-}
+  const card = event.currentTarget;
+  const targetIndex = Number(card.dataset.index);
+  const startIndex = gameState.dragIndex ?? Number(event.dataTransfer.getData("text/plain"));
 
-function hideMessage() {
-  messageModal.classList.add("hidden");
-  messageModal.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
-}
-
-function clearResultStyles() {
-  orderList.querySelectorAll(".order-card").forEach((card) => {
-    card.classList.remove("correct", "incorrect");
-  });
-}
-
-function checkOrder() {
-  clearResultStyles();
-
-  let isComplete = true;
-
-  currentWords.forEach((entry, index) => {
-    const expected = alphabeticalWords[index];
-    const card = orderList.querySelector(`[data-index="${index}"]`);
-
-    if (!card) {
-      return;
-    }
-
-    if (entry.normalized === expected.normalized) {
-      card.classList.add("correct");
-    } else {
-      card.classList.add("incorrect");
-      isComplete = false;
-    }
+  card.classList.remove("drag-over");
+  orderList.querySelectorAll(".drag-over").forEach((entry) => {
+    entry.classList.remove("drag-over");
   });
 
-  if (isComplete) {
-    showMessage("Nice work! The words are in alphabetical order.");
-  } else {
-    showMessage("Not quite yet. Keep moving the words until each box is green.");
-  }
+  handleMove(startIndex, targetIndex);
+  gameState.dragIndex = null;
+  removeDragGhost();
+}
+
+function restartGame() {
+  hideModal(completionModal);
+
+  gameState.currentWords = buildShuffledWords(gameState.sortedWords);
+  gameState.hasMadeFirstMove = false;
+  gameState.dragIndex = null;
+  gameState.interactionLocked = false;
+
+  renderWords();
 }
 
 function initializeGame() {
-  const savedWords = getSavedWords();
+  hideModal(completionModal);
 
-  if (savedWords.length === 0) {
-    currentWords = [];
-    alphabeticalWords = [];
-    renderWords(currentWords);
+  gameState.originalWords = getSavedWords();
+
+  if (gameState.originalWords.length === 0) {
+    gameState.currentWords = [];
+    gameState.sortedWords = [];
+    renderWords();
     return;
   }
 
-  alphabeticalWords = [...savedWords].sort((a, b) =>
+  gameState.sortedWords = [...gameState.originalWords].sort((a, b) =>
     a.normalized.localeCompare(b.normalized, undefined, { sensitivity: "base" })
   );
-  currentWords = shuffleWords(savedWords);
-  renderWords(currentWords);
+
+  gameState.currentWords = buildShuffledWords(gameState.sortedWords);
+  gameState.hasMadeFirstMove = false;
+  gameState.dragIndex = null;
+  gameState.interactionLocked = false;
+
+  renderWords();
 }
 
-checkButton.addEventListener("click", checkOrder);
-resetButton.addEventListener("click", () => {
-  currentWords = shuffleWords(alphabeticalWords);
-  renderWords(currentWords);
-  clearResultStyles();
-});
-closeMessageButton.addEventListener("click", hideMessage);
-window.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !messageModal.classList.contains("hidden")) {
-    hideMessage();
+function handleEscapeKey(event) {
+  if (event.key !== "Escape") {
+    return;
   }
-});
 
-initializeGame();
+  if (!completionModal.classList.contains("hidden")) {
+    hideModal(completionModal);
+  }
+}
+
+resetButton.addEventListener("click", restartGame);
+playAgainButton.addEventListener("click", restartGame);
+document.addEventListener("keydown", handleEscapeKey);
+window.addEventListener("resize", setResponsiveLayout);
+document.addEventListener("DOMContentLoaded", initializeGame);

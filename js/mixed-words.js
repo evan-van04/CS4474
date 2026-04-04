@@ -117,6 +117,98 @@ function getScrambledLetters(answer) {
   return shuffled;
 }
 
+function setResponsiveLayout() {
+  const root = document.documentElement;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  const allLengths = gameState.words.length
+    ? gameState.words.map((entry) => entry.word.length)
+    : [3];
+
+  const currentLength = Math.max(gameState.currentWord?.word.length || 3, 3);
+  const maxLength = Math.max(...allLengths, currentLength, 3);
+  const isCompact = viewportWidth <= 900;
+
+  const headerHeight = isCompact ? 76 : 90;
+
+  let titlePx = isCompact ? 52 : maxLength >= 10 ? 70 : 76;
+  let titleGapPx = isCompact ? 10 : 14;
+  let instructionPx = isCompact ? 15 : 18;
+  let instructionMarginPx = isCompact ? 14 : 20;
+
+  let tileGapPx = isCompact ? 10 : 12;
+  let hardMaxTile = isCompact ? 64 : 72;
+  let hardMinTile = isCompact ? 42 : 48;
+
+  const availableWidth = viewportWidth - (isCompact ? 32 : 96);
+  const tileSizeByWidth = Math.floor(
+    (Math.min(availableWidth, 900) - (currentLength - 1) * tileGapPx) / currentLength
+  );
+
+  const availableHeight =
+    viewportHeight -
+    headerHeight -
+    titlePx -
+    titleGapPx -
+    instructionPx -
+    instructionMarginPx -
+    180;
+
+  const tileSizeByHeight = Math.floor(Math.max(availableHeight, hardMinTile));
+  let tileSizePx = Math.min(tileSizeByWidth, tileSizeByHeight, hardMaxTile);
+  tileSizePx = Math.max(hardMinTile, tileSizePx);
+
+  if (tileSizePx < 54) {
+    titlePx = isCompact ? 44 : 60;
+    titleGapPx = 8;
+    instructionPx = isCompact ? 14 : 16;
+    instructionMarginPx = 12;
+  }
+
+  if (tileSizePx < 48) {
+    tileGapPx = isCompact ? 8 : 10;
+  }
+
+  const lettersWidthPx = currentLength * tileSizePx + (currentLength - 1) * tileGapPx;
+  const shellWidthPx = Math.min(
+    Math.max(lettersWidthPx + (isCompact ? 40 : 120), isCompact ? 320 : 620),
+    isCompact ? viewportWidth - 24 : 940
+  );
+
+  const shellMinHeightPx = Math.min(
+    Math.max(tileSizePx + 260, isCompact ? 360 : 410),
+    viewportHeight - headerHeight - 18
+  );
+
+  const hintMinWidthPx = Math.min(Math.max(Math.round(lettersWidthPx * 0.7), isCompact ? 260 : 360), viewportWidth - 40);
+  const hintMaxWidthPx = Math.min(Math.max(Math.round(lettersWidthPx * 1.08), isCompact ? 320 : 440), viewportWidth - 30);
+
+  const hintFontPx = tileSizePx < 50 ? (isCompact ? 14 : 16) : (isCompact ? 15 : 18);
+  const progressWidthPx = tileSizePx < 50 ? (isCompact ? 108 : 120) : (isCompact ? 120 : 136);
+  const progressFontPx = tileSizePx < 50 ? (isCompact ? 26 : 30) : (isCompact ? 30 : 34);
+  const letterFontPx = Math.round(tileSizePx * 0.5);
+
+  root.style.setProperty("--mw-shell-width", `${shellWidthPx}px`);
+  root.style.setProperty("--mw-shell-min-height", `${shellMinHeightPx}px`);
+  root.style.setProperty("--mw-title-size", `${titlePx}px`);
+  root.style.setProperty("--mw-title-gap", `${titleGapPx}px`);
+  root.style.setProperty("--mw-instruction-size", `${instructionPx}px`);
+  root.style.setProperty("--mw-instruction-margin", `${instructionMarginPx}px`);
+  root.style.setProperty("--mw-tile-size", `${tileSizePx}px`);
+  root.style.setProperty("--mw-tile-gap", `${tileGapPx}px`);
+  root.style.setProperty("--mw-letter-font-size", `${letterFontPx}px`);
+  root.style.setProperty("--mw-hint-min-width", `${hintMinWidthPx}px`);
+  root.style.setProperty("--mw-hint-max-width", `${hintMaxWidthPx}px`);
+  root.style.setProperty("--mw-hint-font-size", `${hintFontPx}px`);
+  root.style.setProperty("--mw-progress-min-width", `${progressWidthPx}px`);
+  root.style.setProperty("--mw-progress-font-size", `${progressFontPx}px`);
+  root.style.setProperty(
+    "--mw-shell-before-inset",
+    isCompact ? "18% 8% 22% 8%" : "22% 20% 26% 20%"
+  );
+}
+
 function updateProgress() {
   progressPill.textContent = `${Math.min(gameState.currentIndex + 1, gameState.words.length)}/${gameState.words.length}`;
 }
@@ -227,16 +319,45 @@ function handleDrop(event) {
   gameState.dragIndex = null;
 }
 
+const MODAL_CLOSE_DURATION = 380;
+
 function showModal(modalElement) {
+  if (modalElement.hideTimer) {
+    window.clearTimeout(modalElement.hideTimer);
+    modalElement.hideTimer = null;
+  }
+
   modalElement.classList.remove("hidden");
   modalElement.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
+
+  window.requestAnimationFrame(() => {
+    modalElement.classList.add("is-visible");
+  });
 }
 
 function hideModal(modalElement) {
-  modalElement.classList.add("hidden");
+  if (modalElement.classList.contains("hidden")) {
+    modalElement.classList.remove("is-visible");
+    modalElement.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    return;
+  }
+
+  modalElement.classList.remove("is-visible");
   modalElement.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
+
+  if (modalElement.hideTimer) {
+    window.clearTimeout(modalElement.hideTimer);
+  }
+
+  modalElement.hideTimer = window.setTimeout(() => {
+    if (!modalElement.classList.contains("is-visible")) {
+      modalElement.classList.add("hidden");
+    }
+    modalElement.hideTimer = null;
+  }, MODAL_CLOSE_DURATION);
 }
 
 function wait(ms) {
@@ -270,6 +391,7 @@ function loadCurrentWord() {
   gameState.dragIndex = null;
   gameState.neutralClass = "neutral";
 
+  setResponsiveLayout();
   updateProgress();
   setHintText(gameState.currentWord.definition);
   renderLetters();
@@ -300,5 +422,6 @@ function handleEscapeKey(event) {
 
 playAgainButton.addEventListener("click", startGame);
 document.addEventListener("keydown", handleEscapeKey);
+window.addEventListener("resize", setResponsiveLayout);
 
 document.addEventListener("DOMContentLoaded", startGame);

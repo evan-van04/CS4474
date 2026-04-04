@@ -33,30 +33,30 @@
       <img src="../assets/cloud-left.png" alt="" class="cloud cloud-left-mid" />
       <img src="../assets/cloud-right.png" alt="" class="cloud cloud-right-bottom" />
 
-      <h1 class="page-title">Alphabetical</h1>
-      <p class="game-instruction">Drag or move the words into alphabetical order. Then tap the check mark to see if they are correct.</p>
+      <section class="game-shell" aria-label="Alphabetical game">
+        <h1 class="page-title">Alphabetical</h1>
+        <p class="game-instruction" id="gameInstruction">Drag the words into alphabetical order.</p>
 
-      <div class="alphabetical-container">
-        <ol class="order-list" id="orderList" aria-label="Alphabetical ordering list"></ol>
-        <div class="button-row">
-          <button class="submit-button" id="checkButton" type="button" aria-label="Check alphabetical order">
-            <img src="../assets/check.png" alt="Check order" class="check-icon" />
-          </button>
-          <button class="reset-button" id="resetButton" type="button">Shuffle</button>
+        <div class="alphabetical-container">
+          <ol class="order-list" id="orderList" aria-label="Alphabetical ordering list"></ol>
+
+          <div class="button-row">
+            <button class="reset-button" id="resetButton" type="button">Shuffle</button>
+          </div>
         </div>
-      </div>
 
-      <div class="empty-state hidden" id="emptyState">
-        <p>No words were found. Please add words on the Input Words page before playing.</p>
-        <a class="empty-link" href="input-words.html">Add words now</a>
-      </div>
+        <div class="empty-state hidden" id="emptyState">
+          <p>No words were found. Please add words on the Input Words page before playing.</p>
+          <a class="empty-link" href="input-words.html">Add words now</a>
+        </div>
+      </section>
     </section>
 
-    <div class="modal-overlay hidden" id="messageModal" aria-hidden="true">
-      <div class="message-modal" role="dialog" aria-modal="true" aria-labelledby="messageTitle">
-        <p class="message-title" id="messageTitle">Great job!</p>
-        <p class="message-text" id="messageText">You ordered the words correctly.</p>
-        <button class="message-button" id="closeMessageButton" type="button">OK</button>
+    <div class="modal-overlay hidden" id="completionModal" aria-hidden="true">
+      <div class="error-modal" role="dialog" aria-modal="true" aria-labelledby="completionMessage">
+        <img src="../assets/happy-cloud.png" alt="" class="error-cloud" />
+        <p class="error-message" id="completionMessage">Awesome job! You put the words in alphabetical order!</p>
+        <button class="error-close-button" id="playAgainButton" type="button">PLAY AGAIN</button>
       </div>
     </div>
   </main>

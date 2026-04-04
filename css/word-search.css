@@ -17,7 +17,6 @@
 
   --shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
 
-  /* responsive layout vars controlled by JS */
   --cell-size: 48px;
   --cell-gap: 8px;
   --layout-gap: 32px;
@@ -31,6 +30,7 @@
   --word-col-gap: 28px;
   --word-row-gap: 12px;
   --word-col-min: 130px;
+  --instruction-font-size: 1rem;
 }
 
 * {
@@ -139,7 +139,7 @@ input {
 .game-content {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   height: 100%;
   padding: 12px 16px 16px;
   overflow: hidden;
@@ -151,6 +151,7 @@ input {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .page-title {
@@ -168,7 +169,7 @@ input {
   display: grid;
   grid-template-columns: auto auto;
   justify-content: center;
-  align-items: start;
+  align-items: center;
   gap: var(--layout-gap);
   width: fit-content;
   max-width: 100%;
@@ -210,7 +211,6 @@ input {
   transform: scale(1.04);
 }
 
-/* 20 found-word colors */
 .grid-cell.found-color-1 {
   background: #ffd9d9;
   border-color: #ff8a8a;
@@ -311,13 +311,11 @@ input {
   border-color: #8a84e2;
 }
 
-/* active user selection should ALWAYS be blue */
 .grid-cell.selected {
   background: var(--selection-fill) !important;
   border-color: var(--selection-stroke) !important;
 }
 
-/* invalid tries stay red */
 .grid-cell.invalid {
   background: var(--invalid-fill) !important;
   border-color: var(--invalid-stroke) !important;
@@ -325,7 +323,10 @@ input {
 
 .word-bank-wrapper {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 12px;
 }
 
 .word-bank-section {
@@ -372,15 +373,51 @@ input {
   opacity: 0.45;
 }
 
+.game-instruction {
+  margin: 0;
+  width: min(100%, 360px);
+  text-align: center;
+  font-family: "Inter", sans-serif;
+  font-size: var(--instruction-font-size);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--nav-blue);
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(39, 74, 126, 0.22);
+  background: rgba(39, 74, 126, 0.28);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 24px;
+  align-items: center;
+  padding: 20px;
   z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.modal-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-overlay .error-modal,
+.modal-overlay .message-modal {
+  transform: translateY(-120px);
+  opacity: 0;
+  transform-origin: top center;
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.28s ease;
+  will-change: transform, opacity;
+}
+
+.modal-overlay.is-visible .error-modal,
+.modal-overlay.is-visible .message-modal {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .hidden {
