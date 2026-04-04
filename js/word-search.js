@@ -144,6 +144,7 @@ class WordSearchGame {
 
     let titlePx = isCompact ? 48 : wordColumns >= 3 ? 62 : 70;
     let titleMarginBottomPx = isCompact ? 12 : 22;
+    let instructionFontPx = isCompact ? 14 : 16;
 
     let layoutGapPx = isCompact ? 16 : wordColumns >= 3 ? 28 : 36;
 
@@ -206,6 +207,7 @@ class WordSearchGame {
       wordColMinPx = isCompact ? 80 : 96;
       titlePx = isCompact ? 40 : 54;
       titleMarginBottomPx = isCompact ? 10 : 14;
+      instructionFontPx = isCompact ? 13 : 15;
       cellGapPx = isCompact ? 3 : 6;
 
       cellSizePx = computeCellSize();
@@ -222,6 +224,7 @@ class WordSearchGame {
       wordColMinPx = isCompact ? 72 : 86;
       titlePx = isCompact ? 34 : 46;
       titleMarginBottomPx = isCompact ? 8 : 10;
+      instructionFontPx = isCompact ? 12 : 13;
       cellGapPx = isCompact ? 2 : 4;
 
       cellSizePx = computeCellSize();
@@ -241,6 +244,7 @@ class WordSearchGame {
     root.style.setProperty("--word-col-gap", `${wordColGapPx}px`);
     root.style.setProperty("--word-row-gap", `${wordRowGapPx}px`);
     root.style.setProperty("--word-col-min", `${wordColMinPx}px`);
+    root.style.setProperty("--instruction-font-size", `${instructionFontPx}px`);
   }
 
   generateGrid() {
@@ -599,16 +603,45 @@ class WordSearchGame {
   }
 
   showModal(modalElement) {
-    modalElement.classList.remove("hidden");
-    modalElement.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
+  if (modalElement.hideTimer) {
+    window.clearTimeout(modalElement.hideTimer);
+    modalElement.hideTimer = null;
   }
 
-  hideModal(modalElement) {
-    modalElement.classList.add("hidden");
+  modalElement.classList.remove("hidden");
+  modalElement.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+
+  window.requestAnimationFrame(() => {
+    modalElement.classList.add("is-visible");
+  });
+}
+
+hideModal(modalElement) {
+  const modalCloseDuration = 380;
+
+  if (modalElement.classList.contains("hidden")) {
+    modalElement.classList.remove("is-visible");
     modalElement.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
+    return;
   }
+
+  modalElement.classList.remove("is-visible");
+  modalElement.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+
+  if (modalElement.hideTimer) {
+    window.clearTimeout(modalElement.hideTimer);
+  }
+
+  modalElement.hideTimer = window.setTimeout(() => {
+    if (!modalElement.classList.contains("is-visible")) {
+      modalElement.classList.add("hidden");
+    }
+    modalElement.hideTimer = null;
+  }, modalCloseDuration);
+}
 
   showCompletionModal() {
     this.completionMessage.textContent = "Awesome job! You finished the word search!";
