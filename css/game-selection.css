@@ -42,7 +42,7 @@ a {
   grid-template-rows: 90px 1fr;
 }
 
-/* consistent top navbar */
+/* top navbar */
 .top-bar {
   background: var(--header-bg);
   display: grid;
@@ -123,7 +123,7 @@ a {
 }
 
 .page-title {
-  margin: 8px 0 42px;
+  margin: 8px 0 34px;
   text-align: center;
   font-family: "Titan One", cursive;
   font-size: clamp(3.2rem, 5.4vw, 5.4rem);
@@ -151,22 +151,25 @@ a {
   bottom: 58px;
 }
 
-/* centered game buttons row */
+/* centered 2x2 grid with equal spacing */
 .game-row {
   position: relative;
   z-index: 2;
-  width: 100%;
-  max-width: 1380px;
   flex: 1;
-  display: flex;
-  align-items: center;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 360px);
+  grid-template-rows: repeat(2, 220px);
   justify-content: center;
-  gap: clamp(18px, 2vw, 34px);
-  padding: 0 16px 20px;
+  align-content: center;
+  column-gap: 24px;
+  row-gap: 24px;
+  padding: 0 16px 12px;
 }
 
 .game-card {
-  flex: 0 1 300px;
+  width: 360px;
+  height: 220px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,11 +187,28 @@ a {
 }
 
 .game-image {
-  width: 100%;
-  max-width: 300px;
+  width: auto;
   height: auto;
+  max-width: none;
   object-fit: contain;
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+}
+
+/* individual image sizing only */
+.game-card:nth-child(1) .game-image {
+  width: 320px; /* word search */
+}
+
+.game-card:nth-child(2) .game-image {
+  width: 320px; /* alphabetical */
+}
+
+.game-card:nth-child(3) .game-image {
+  width: 320px; /* mixed words */
+}
+
+.game-card:nth-child(4) .game-image {
+  width: 320px; /* missing letter */
 }
 
 /* medium screens */
@@ -208,18 +228,32 @@ a {
   }
 
   .game-row {
-    flex-wrap: wrap;
-    max-width: 980px;
-    gap: 26px 30px;
+    grid-template-columns: repeat(2, 320px);
+    grid-template-rows: repeat(2, 200px);
+    column-gap: 20px;
+    row-gap: 20px;
     padding-bottom: 8px;
   }
 
   .game-card {
-    flex: 0 1 340px;
+    width: 320px;
+    height: 200px;
   }
 
-  .game-image {
-    max-width: 340px;
+  .game-card:nth-child(1) .game-image {
+    width: 300px;
+  }
+
+  .game-card:nth-child(2) .game-image {
+    width: 300px;
+  }
+
+  .game-card:nth-child(3) .game-image {
+    width: 300px;
+  }
+
+  .game-card:nth-child(4) .game-image {
+    width: 300px;
   }
 }
 
@@ -263,19 +297,24 @@ a {
   }
 
   .game-row {
-    flex-direction: column;
-    align-items: center;
-    gap: 18px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    justify-items: center;
+    align-content: start;
+    row-gap: 18px;
+    column-gap: 0;
     padding: 0 0 12px;
   }
 
   .game-card {
     width: min(92vw, 360px);
-    flex: none;
+    height: auto;
   }
 
   .game-image {
-    max-width: 100%;
+    width: 100%;
+    max-width: 320px;
+    height: auto;
   }
 
   .cloud-left-mid {

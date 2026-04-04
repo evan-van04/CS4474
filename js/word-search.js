@@ -6,140 +6,327 @@ class WordSearchGame {
     this.foundWords = new Set();
     this.selectedCells = [];
     this.isSelecting = false;
-    this.wordPositions = new Map();
-    
+    this.wordColorClasses = new Map();
+
+    this.foundColorClasses = [
+      "found-color-1",
+      "found-color-2",
+      "found-color-3",
+      "found-color-4",
+      "found-color-5",
+      "found-color-6",
+      "found-color-7",
+      "found-color-8",
+      "found-color-9",
+      "found-color-10",
+      "found-color-11",
+      "found-color-12",
+      "found-color-13",
+      "found-color-14",
+      "found-color-15",
+      "found-color-16",
+      "found-color-17",
+      "found-color-18",
+      "found-color-19",
+      "found-color-20"
+    ];
+
+    this.availableFoundColors = [];
+
+    this.gridElement = document.getElementById("wordSearchGrid");
+    this.wordListElement = document.getElementById("wordList");
+    this.completionModal = document.getElementById("completionModal");
+    this.completionMessage = document.getElementById("completionMessage");
+    this.playAgainButton = document.getElementById("playAgainButton");
+
     this.init();
   }
 
   init() {
-    // Load words from sessionStorage (set by input-words.js)
-    let savedData = sessionStorage.getItem("spellingCentralWords");
-    
-    // Fallback to localStorage if sessionStorage is empty
-    if (!savedData) {
-      savedData = localStorage.getItem("spellingCentralWords");
-    }
+    this.words = this.getStoredWords();
 
-    if (!savedData) {
+    if (this.words.length === 0) {
       alert("No words found. Please go back and input words first.");
       window.location.href = "input-words.html";
       return;
     }
 
-    try {
-      const wordData = JSON.parse(savedData);
-      
-      // Handle both data formats
-      if (Array.isArray(wordData)) {
-        // If it has 'word' property (from API), use it
-        if (wordData[0]?.word) {
-          this.words = wordData.map(item => item.word.toLowerCase());
-        } 
-        // If it has 'value' property (from input form), use it
-        else if (wordData[0]?.value) {
-          this.words = wordData.map(item => item.value.toLowerCase());
-        }
-        // Direct word strings
-        else if (typeof wordData[0] === "string") {
-          this.words = wordData.map(w => w.toLowerCase());
-        }
-      }
+    this.gridSize = Math.max(10, ...this.words.map((word) => word.length));
 
-      if (!this.words || this.words.length === 0) {
-        throw new Error("No valid words found");
-      }
-    } catch (error) {
-      console.error("Error parsing words:", error);
-      alert("Error loading words. Please try again.");
-      window.location.href = "input-words.html";
-      return;
+    this.attachGlobalEventListeners();
+    this.startGame();
+  }
+
+  getStoredWords() {
+    let savedData = sessionStorage.getItem("spellingCentralWords");
+
+    if (!savedData) {
+      savedData = localStorage.getItem("spellingCentralWords");
     }
 
-    // Generate word search grid
+    if (!savedData) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(savedData);
+
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      let words = [];
+
+      if (parsed[0]?.word) {
+        words = parsed.map((item) => String(item.word || "").trim().toLowerCase());
+      } else if (parsed[0]?.value) {
+        words = parsed.map((item) => String(item.value || "").trim().toLowerCase());
+      } else if (typeof parsed[0] === "string") {
+        words = parsed.map((item) => String(item || "").trim().toLowerCase());
+      }
+
+      return [...new Set(words.filter((word) => word.length > 0))];
+    } catch (error) {
+      console.error("Error parsing words:", error);
+      return [];
+    }
+  }
+
+  shuffleArray(items) {
+    const copy = [...items];
+
+    for (let index = copy.length - 1; index > 0; index -= 1) {
+      const randomIndex = Math.floor(Math.random() * (index + 1));
+      [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
+    }
+
+    return copy;
+  }
+
+  startGame() {
+    this.hideModal(this.completionModal);
+    this.foundWords.clear();
+    this.wordColorClasses.clear();
+    this.selectedCells = [];
+    this.isSelecting = false;
+    this.availableFoundColors = this.shuffleArray(this.foundColorClasses);
+
+    const totalLetters = this.words.reduce((sum, word) => sum + word.length, 0);
+    const longestWord = Math.max(...this.words.map((word) => word.length));
+
+    this.words = [...this.words].sort((a, b) => b.length - a.length);
+
+    this.gridSize = Math.max(
+      longestWord + 1,
+      Math.ceil(Math.sqrt(totalLetters * 1.35)),
+      10
+    );
+
     this.generateGrid();
     this.renderGrid();
     this.renderWordList();
-    this.attachEventListeners();
+    this.setResponsiveLayout();
   }
 
-  /**
-   * Generate word search grid with words placed in random directions
-   */
-  generateGrid() {
-    // Initialize empty grid
-    this.grid = Array(this.gridSize)
-      .fill(null)
-      .map(() => Array(this.gridSize).fill(""));
+  setResponsiveLayout() {
+    const root = document.documentElement;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
-    // Place each word in the grid
-    for (const word of this.words) {
-      this.placeWord(word);
+    const isCompact = viewportWidth <= 900;
+    const wordsPerColumn = 5;
+    const wordColumns = Math.max(1, Math.ceil(this.words.length / wordsPerColumn));
+
+    const headerHeight = isCompact ? 76 : 90;
+    const pagePaddingX = isCompact ? 10 : 16;
+    const contentPaddingTop = isCompact ? 10 : 12;
+    const contentPaddingBottom = isCompact ? 12 : 16;
+
+    let titlePx = isCompact ? 48 : wordColumns >= 3 ? 62 : 70;
+    let titleMarginBottomPx = isCompact ? 12 : 22;
+
+    let layoutGapPx = isCompact ? 16 : wordColumns >= 3 ? 28 : 36;
+
+    let bankPaddingXPx = isCompact ? 14 : 24;
+    let bankPaddingYPx = isCompact ? 14 : 22;
+    let bankTitlePx = isCompact ? 28 : 36;
+    let wordFontPx = isCompact ? 15 : wordColumns >= 3 ? 17 : 19;
+    let wordColGapPx = isCompact ? 10 : wordColumns >= 3 ? 18 : 28;
+    let wordRowGapPx = isCompact ? 8 : 12;
+    let wordColMinPx = isCompact ? 88 : wordColumns >= 3 ? 106 : 130;
+
+    let cellGapPx = isCompact ? 4 : 8;
+    const hardMaxCell = isCompact ? 38 : 48;
+    const hardMinCell = isCompact ? 22 : 24;
+
+    const computeCellSize = () => {
+      const estimatedWordBankWidth =
+        bankPaddingXPx * 2 +
+        wordColumns * wordColMinPx +
+        Math.max(0, wordColumns - 1) * wordColGapPx +
+        12;
+
+      const availableWidth =
+        viewportWidth -
+        pagePaddingX * 2 -
+        layoutGapPx -
+        estimatedWordBankWidth -
+        24;
+
+      const availableHeight =
+        viewportHeight -
+        headerHeight -
+        contentPaddingTop -
+        contentPaddingBottom -
+        titlePx -
+        titleMarginBottomPx -
+        24;
+
+      const widthLimitedSize = Math.floor(
+        (availableWidth - (this.gridSize - 1) * cellGapPx) / this.gridSize
+      );
+
+      const heightLimitedSize = Math.floor(
+        (availableHeight - (this.gridSize - 1) * cellGapPx) / this.gridSize
+      );
+
+      return Math.min(widthLimitedSize, heightLimitedSize, hardMaxCell);
+    };
+
+    let cellSizePx = computeCellSize();
+
+    if (cellSizePx < 38) {
+      layoutGapPx = isCompact ? 12 : 20;
+      bankPaddingXPx = isCompact ? 12 : 18;
+      bankPaddingYPx = isCompact ? 12 : 16;
+      bankTitlePx = isCompact ? 24 : 30;
+      wordFontPx = isCompact ? 14 : 16;
+      wordColGapPx = isCompact ? 8 : 14;
+      wordRowGapPx = isCompact ? 6 : 10;
+      wordColMinPx = isCompact ? 80 : 96;
+      titlePx = isCompact ? 40 : 54;
+      titleMarginBottomPx = isCompact ? 10 : 14;
+      cellGapPx = isCompact ? 3 : 6;
+
+      cellSizePx = computeCellSize();
     }
 
-    // Fill empty cells with random letters
+    if (cellSizePx < 30) {
+      layoutGapPx = isCompact ? 10 : 16;
+      bankPaddingXPx = isCompact ? 10 : 14;
+      bankPaddingYPx = isCompact ? 10 : 12;
+      bankTitlePx = isCompact ? 21 : 25;
+      wordFontPx = isCompact ? 12 : 14;
+      wordColGapPx = isCompact ? 6 : 10;
+      wordRowGapPx = isCompact ? 5 : 8;
+      wordColMinPx = isCompact ? 72 : 86;
+      titlePx = isCompact ? 34 : 46;
+      titleMarginBottomPx = isCompact ? 8 : 10;
+      cellGapPx = isCompact ? 2 : 4;
+
+      cellSizePx = computeCellSize();
+    }
+
+    cellSizePx = Math.max(hardMinCell, Math.min(hardMaxCell, cellSizePx));
+
+    root.style.setProperty("--cell-size", `${cellSizePx}px`);
+    root.style.setProperty("--cell-gap", `${cellGapPx}px`);
+    root.style.setProperty("--layout-gap", `${layoutGapPx}px`);
+    root.style.setProperty("--title-size", `${titlePx}px`);
+    root.style.setProperty("--title-margin-bottom", `${titleMarginBottomPx}px`);
+    root.style.setProperty("--bank-padding-x", `${bankPaddingXPx}px`);
+    root.style.setProperty("--bank-padding-y", `${bankPaddingYPx}px`);
+    root.style.setProperty("--bank-title-size", `${bankTitlePx}px`);
+    root.style.setProperty("--word-font-size", `${wordFontPx}px`);
+    root.style.setProperty("--word-col-gap", `${wordColGapPx}px`);
+    root.style.setProperty("--word-row-gap", `${wordRowGapPx}px`);
+    root.style.setProperty("--word-col-min", `${wordColMinPx}px`);
+  }
+
+  generateGrid() {
+    let success = false;
+    let attempts = 0;
+
+    while (!success && attempts < 40) {
+      this.grid = Array.from({ length: this.gridSize }, () =>
+        Array(this.gridSize).fill("")
+      );
+
+      success = true;
+
+      for (const word of this.words) {
+        const placed = this.placeWord(word);
+        if (!placed) {
+          success = false;
+          break;
+        }
+      }
+
+      if (!success) {
+        attempts += 1;
+      }
+    }
+
+    if (!success) {
+      this.gridSize += 2;
+      this.generateGrid();
+      return;
+    }
+
     const alphabet = "abcdefghijklmnopqrstuvwxyz";
-    for (let i = 0; i < this.gridSize; i++) {
-      for (let j = 0; j < this.gridSize; j++) {
-        if (this.grid[i][j] === "") {
-          this.grid[i][j] = alphabet[Math.floor(Math.random() * alphabet.length)];
+    for (let row = 0; row < this.gridSize; row += 1) {
+      for (let col = 0; col < this.gridSize; col += 1) {
+        if (this.grid[row][col] === "") {
+          this.grid[row][col] =
+            alphabet[Math.floor(Math.random() * alphabet.length)];
         }
       }
     }
   }
 
-  /**
-   * Place a single word in the grid
-   */
   placeWord(word) {
     const directions = [
-      [0, 1],   // Right
-      [0, -1],  // Left
-      [1, 0],   // Down
-      [-1, 0],  // Up
-      [1, 1],   // Down-Right
-      [-1, -1], // Up-Left
-      [1, -1],  // Down-Left
-      [-1, 1]   // Up-Right
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0],
+      [1, 1],
+      [-1, -1],
+      [1, -1],
+      [-1, 1]
     ];
 
-    let placed = false;
-    let attempts = 0;
-
-    while (!placed && attempts < 50) {
+    for (let attempts = 0; attempts < 300; attempts += 1) {
       const startRow = Math.floor(Math.random() * this.gridSize);
       const startCol = Math.floor(Math.random() * this.gridSize);
-      const direction = directions[Math.floor(Math.random() * directions.length)];
+      const [dRow, dCol] =
+        directions[Math.floor(Math.random() * directions.length)];
 
-      if (this.canPlaceWord(word, startRow, startCol, direction[0], direction[1])) {
-        this.placeWordAt(word, startRow, startCol, direction[0], direction[1]);
-        placed = true;
+      if (this.canPlaceWord(word, startRow, startCol, dRow, dCol)) {
+        this.placeWordAt(word, startRow, startCol, dRow, dCol);
+        return true;
       }
-
-      attempts++;
     }
 
-    // If placement failed, try a simpler approach
-    if (!placed) {
-      this.placeWordSimple(word);
-    }
+    return this.placeWordSimple(word);
   }
 
-  /**
-   * Check if a word can be placed at a given position
-   */
   canPlaceWord(word, row, col, dRow, dCol) {
-    for (let i = 0; i < word.length; i++) {
-      const newRow = row + i * dRow;
-      const newCol = col + i * dCol;
+    for (let index = 0; index < word.length; index += 1) {
+      const nextRow = row + index * dRow;
+      const nextCol = col + index * dCol;
 
-      // Check bounds
-      if (newRow < 0 || newRow >= this.gridSize || newCol < 0 || newCol >= this.gridSize) {
+      if (
+        nextRow < 0 ||
+        nextRow >= this.gridSize ||
+        nextCol < 0 ||
+        nextCol >= this.gridSize
+      ) {
         return false;
       }
 
-      // Check if cell is empty or matches the letter
-      const cell = this.grid[newRow][newCol];
-      if (cell !== "" && cell !== word[i]) {
+      const cellValue = this.grid[nextRow][nextCol];
+      if (cellValue !== "" && cellValue !== word[index]) {
         return false;
       }
     }
@@ -147,109 +334,113 @@ class WordSearchGame {
     return true;
   }
 
-  /**
-   * Place a word at a given position
-   */
   placeWordAt(word, row, col, dRow, dCol) {
-    for (let i = 0; i < word.length; i++) {
-      const newRow = row + i * dRow;
-      const newCol = col + i * dCol;
-      this.grid[newRow][newCol] = word[i];
+    for (let index = 0; index < word.length; index += 1) {
+      const nextRow = row + index * dRow;
+      const nextCol = col + index * dCol;
+      this.grid[nextRow][nextCol] = word[index];
     }
-    
-    // Determine direction and store position
-    let direction = "horizontal";
-    if (dRow === 0 && Math.abs(dCol) === 1) {
-      direction = "horizontal";
-    } else if (dCol === 0 && Math.abs(dRow) === 1) {
-      direction = "vertical";
-    } else if (Math.abs(dRow) === 1 && Math.abs(dCol) === 1) {
-      direction = "diagonal";
+  }
+
+  placeWordSimple(word) {
+    const directions = [
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0],
+      [1, 1],
+      [-1, -1],
+      [1, -1],
+      [-1, 1]
+    ];
+
+    for (let row = 0; row < this.gridSize; row += 1) {
+      for (let col = 0; col < this.gridSize; col += 1) {
+        for (const [dRow, dCol] of directions) {
+          if (this.canPlaceWord(word, row, col, dRow, dCol)) {
+            this.placeWordAt(word, row, col, dRow, dCol);
+            return true;
+          }
+        }
+      }
     }
-    
-    this.wordPositions.set(word, {
-      row,
-      col,
-      dRow,
-      dCol,
-      direction
+
+    return false;
+  }
+
+  renderGrid() {
+    this.gridElement.innerHTML = "";
+    this.gridElement.style.gridTemplateColumns = `repeat(${this.gridSize}, var(--cell-size))`;
+    this.gridElement.style.gridTemplateRows = `repeat(${this.gridSize}, var(--cell-size))`;
+
+    for (let row = 0; row < this.gridSize; row += 1) {
+      for (let col = 0; col < this.gridSize; col += 1) {
+        const cell = document.createElement("div");
+        cell.className = "grid-cell";
+        cell.textContent = this.grid[row][col].toUpperCase();
+        cell.dataset.row = String(row);
+        cell.dataset.col = String(col);
+        cell.id = `cell-${row}-${col}`;
+
+        cell.addEventListener("mousedown", (event) => this.handleCellMouseDown(event, row, col));
+        cell.addEventListener("mouseenter", () => this.handleCellMouseEnter(row, col));
+        cell.addEventListener("click", () => this.handleCellClick(row, col));
+
+        this.gridElement.appendChild(cell);
+      }
+    }
+  }
+
+  renderWordList() {
+    this.wordListElement.innerHTML = "";
+
+    for (const word of this.words) {
+      const item = document.createElement("div");
+      item.className = "word-item";
+      item.dataset.word = word;
+      item.textContent = word.charAt(0).toUpperCase() + word.slice(1);
+
+      if (this.foundWords.has(word)) {
+        item.classList.add("found");
+      }
+
+      this.wordListElement.appendChild(item);
+    }
+  }
+
+  updateWordList() {
+    const items = this.wordListElement.querySelectorAll(".word-item");
+    items.forEach((item) => {
+      const word = item.dataset.word || "";
+      item.classList.toggle("found", this.foundWords.has(word));
     });
   }
 
-  /**
-   * Simplified word placement (in case normal placement fails)
-   */
-  placeWordSimple(word) {
-    for (let i = 0; i < this.gridSize; i++) {
-      for (let j = 0; j < this.gridSize - word.length; j++) {
-        // Try horizontal
-        let canPlace = true;
-        for (let k = 0; k < word.length; k++) {
-          if (this.grid[i][j + k] !== "" && this.grid[i][j + k] !== word[k]) {
-            canPlace = false;
-            break;
-          }
-        }
-
-        if (canPlace) {
-          for (let k = 0; k < word.length; k++) {
-            this.grid[i][j + k] = word[k];
-          }
-          return;
-        }
-      }
-    }
-  }
-
-  /**
-   * Render the word search grid
-   */
-  renderGrid() {
-    const gridContainer = document.getElementById("wordSearchGrid");
-    gridContainer.innerHTML = "";
-
-    for (let i = 0; i < this.gridSize; i++) {
-      for (let j = 0; j < this.gridSize; j++) {
-        const cell = document.createElement("div");
-        cell.className = "grid-cell";
-        cell.textContent = this.grid[i][j].toUpperCase();
-        cell.dataset.row = i;
-        cell.dataset.col = j;
-        cell.id = `cell-${i}-${j}`;
-
-        cell.addEventListener("mousedown", (e) => this.handleCellMouseDown(e, i, j));
-        cell.addEventListener("mouseenter", (e) => this.handleCellMouseEnter(e, i, j));
-        cell.addEventListener("mouseup", () => this.handleCellMouseUp());
-        cell.addEventListener("click", () => this.handleCellClick(i, j));
-
-        gridContainer.appendChild(cell);
-      }
-    }
-  }
-
-  /**
-   * Handle mouse down on grid cell
-   */
-  handleCellMouseDown(e, row, col) {
+  handleCellMouseDown(event, row, col) {
+    event.preventDefault();
     this.isSelecting = true;
     this.selectedCells = [[row, col]];
     this.updateGridHighlight();
   }
 
-  /**
-   * Handle mouse enter on grid cell (for drag)
-   */
-  handleCellMouseEnter(e, row, col) {
-    if (!this.isSelecting) return;
+  handleCellMouseEnter(row, col) {
+    if (!this.isSelecting) {
+      return;
+    }
 
-    // Check if this cell is adjacent to the last selected cell
     const lastCell = this.selectedCells[this.selectedCells.length - 1];
+    if (!lastCell) {
+      return;
+    }
+
+    if (lastCell[0] === row && lastCell[1] === col) {
+      return;
+    }
+
     const rowDiff = Math.abs(row - lastCell[0]);
     const colDiff = Math.abs(col - lastCell[1]);
 
-    // Allow horizontal, vertical, or diagonal adjacent cells
     if ((rowDiff <= 1 && colDiff <= 1) && !(rowDiff === 0 && colDiff === 0)) {
-      // Check if we're going in a consistent direction
       if (this.selectedCells.length === 1 || this.isValidContinuation(row, col)) {
         this.selectedCells.push([row, col]);
         this.updateGridHighlight();
@@ -257,70 +448,67 @@ class WordSearchGame {
     }
   }
 
-  /**
-   * Handle mouse up on grid
-   */
-  handleCellMouseUp() {
-    if (this.isSelecting && this.selectedCells.length > 1) {
-      this.validateSelection();
-    }
-    this.isSelecting = false;
-  }
-
-  /**
-   * Handle click on grid cell (alternative to drag)
-   */
   handleCellClick(row, col) {
+    if (this.isSelecting) {
+      return;
+    }
+
     if (this.selectedCells.length === 0) {
       this.selectedCells = [[row, col]];
-    } else {
-      const lastCell = this.selectedCells[this.selectedCells.length - 1];
-      const rowDiff = Math.abs(row - lastCell[0]);
-      const colDiff = Math.abs(col - lastCell[1]);
+      this.updateGridHighlight();
+      return;
+    }
 
-      if ((rowDiff <= 1 && colDiff <= 1) && !(rowDiff === 0 && colDiff === 0)) {
-        if (this.selectedCells.length === 1 || this.isValidContinuation(row, col)) {
-          this.selectedCells.push([row, col]);
-        } else {
-          this.selectedCells = [[row, col]];
-        }
+    const lastCell = this.selectedCells[this.selectedCells.length - 1];
+    const rowDiff = Math.abs(row - lastCell[0]);
+    const colDiff = Math.abs(col - lastCell[1]);
+
+    if ((rowDiff <= 1 && colDiff <= 1) && !(rowDiff === 0 && colDiff === 0)) {
+      if (this.selectedCells.length === 1 || this.isValidContinuation(row, col)) {
+        this.selectedCells.push([row, col]);
       } else {
         this.selectedCells = [[row, col]];
       }
+    } else {
+      this.selectedCells = [[row, col]];
     }
 
     this.updateGridHighlight();
   }
 
-  /**
-   * Check if movement to new cell maintains direction
-   */
-  isValidContinuation(newRow, newCol) {
-    if (this.selectedCells.length < 2) return true;
+  handleGlobalMouseUp() {
+    if (!this.isSelecting) {
+      return;
+    }
 
-    const prev = this.selectedCells[this.selectedCells.length - 2];
-    const current = this.selectedCells[this.selectedCells.length - 1];
+    if (this.selectedCells.length > 1) {
+      this.validateSelection();
+    }
 
-    const dRow1 = current[0] - prev[0];
-    const dCol1 = current[1] - prev[1];
-
-    const dRow2 = newRow - current[0];
-    const dCol2 = newCol - current[1];
-
-    // Direction must remain consistent
-    return dRow1 === dRow2 && dCol1 === dCol2;
+    this.isSelecting = false;
   }
 
-  /**
-   * Update grid highlighting based on selected cells
-   */
+  isValidContinuation(newRow, newCol) {
+    if (this.selectedCells.length < 2) {
+      return true;
+    }
+
+    const previous = this.selectedCells[this.selectedCells.length - 2];
+    const current = this.selectedCells[this.selectedCells.length - 1];
+
+    const previousRowDelta = current[0] - previous[0];
+    const previousColDelta = current[1] - previous[1];
+    const nextRowDelta = newRow - current[0];
+    const nextColDelta = newCol - current[1];
+
+    return previousRowDelta === nextRowDelta && previousColDelta === nextColDelta;
+  }
+
   updateGridHighlight() {
-    // Clear all highlights
-    document.querySelectorAll(".grid-cell").forEach(cell => {
-      cell.classList.remove("selected", "found", "invalid");
+    document.querySelectorAll(".grid-cell").forEach((cell) => {
+      cell.classList.remove("selected", "invalid");
     });
 
-    // Highlight selected cells
     for (const [row, col] of this.selectedCells) {
       const cell = document.getElementById(`cell-${row}-${col}`);
       if (cell) {
@@ -329,160 +517,127 @@ class WordSearchGame {
     }
   }
 
-  /**
-   * Validate the selected word
-   */
   validateSelection() {
     const selectedWord = this.selectedCells
       .map(([row, col]) => this.grid[row][col])
       .join("")
       .toLowerCase();
 
-    // Get direction of selection
-    const direction = this.getSelectionDirection();
+    const reversedWord = selectedWord.split("").reverse().join("");
+    const matchedWord = this.words.includes(selectedWord)
+      ? selectedWord
+      : this.words.includes(reversedWord)
+        ? reversedWord
+        : null;
 
-    // Check forward
-    if (this.words.includes(selectedWord) && !this.foundWords.has(selectedWord)) {
-      this.markWordAsFound(selectedWord);
-      this.highlightFoundCells(direction);
-    } else if (this.words.includes(selectedWord) && this.foundWords.has(selectedWord)) {
-      // Already found
-      this.highlightFoundCells(direction);
-    } else {
-      // Check backward
-      const reversedWord = selectedWord.split("").reverse().join("");
-      if (this.words.includes(reversedWord) && !this.foundWords.has(reversedWord)) {
-        this.markWordAsFound(reversedWord);
-        this.highlightFoundCells(direction);
-      } else if (this.words.includes(reversedWord) && this.foundWords.has(reversedWord)) {
-        this.highlightFoundCells(direction);
-      } else {
-        // Invalid word
-        this.highlightFoundCells("invalid");
-        setTimeout(() => {
-          this.clearSelection();
-        }, 300);
-      }
+    if (matchedWord && !this.foundWords.has(matchedWord)) {
+      this.completeWord(matchedWord);
+      return;
     }
+
+    if (matchedWord && this.foundWords.has(matchedWord)) {
+      window.setTimeout(() => this.clearSelection(), 160);
+      return;
+    }
+
+    this.highlightSelection("invalid");
+    window.setTimeout(() => this.clearSelection(), 280);
   }
 
-  /**
-   * Get the direction of the current selection
-   */
-  getSelectionDirection() {
-    if (this.selectedCells.length < 2) return "horizontal";
-    
-    const first = this.selectedCells[0];
-    const last = this.selectedCells[this.selectedCells.length - 1];
-    
-    const rowDiff = last[0] - first[0];
-    const colDiff = last[1] - first[1];
-    
-    if (rowDiff === 0) {
-      return "horizontal";
-    } else if (colDiff === 0) {
-      return "vertical";
-    } else {
-      return "diagonal";
+  getNextFoundColorClass() {
+    if (this.availableFoundColors.length === 0) {
+      this.availableFoundColors = this.shuffleArray(this.foundColorClasses);
     }
+
+    return this.availableFoundColors.shift();
   }
 
-  /**
-   * Mark a word as found
-   */
-  markWordAsFound(word) {
+  removeFoundColorClasses(cell) {
+    this.foundColorClasses.forEach((className) => {
+      cell.classList.remove(className);
+    });
+  }
+
+  completeWord(word) {
     this.foundWords.add(word);
+
+    const colorClass = this.wordColorClasses.get(word) || this.getNextFoundColorClass();
+    this.wordColorClasses.set(word, colorClass);
+
+    this.highlightSelection(colorClass);
     this.updateWordList();
+
+    window.setTimeout(() => {
+      this.clearSelection();
+
+      if (this.foundWords.size === this.words.length) {
+        this.showCompletionModal();
+      }
+    }, 220);
   }
 
-  /**
-   * Highlight found cells in a specific way
-   */
-  highlightFoundCells(direction) {
+  highlightSelection(className) {
     for (const [row, col] of this.selectedCells) {
       const cell = document.getElementById(`cell-${row}-${col}`);
-      if (cell) {
-        // Remove selected class but keep the color
-        cell.classList.remove("selected", "invalid");
-        cell.classList.add(direction); // Add horizontal, vertical, or diagonal class
+      if (!cell) {
+        continue;
       }
+
+      cell.classList.remove("selected", "invalid");
+
+      if (className.startsWith("found-color-")) {
+        this.removeFoundColorClasses(cell);
+      }
+
+      cell.classList.add(className);
     }
   }
 
-  /**
-   * Clear selection
-   */
   clearSelection() {
     this.selectedCells = [];
     this.updateGridHighlight();
   }
 
-  /**
-   * Render the word list
-   */
-  renderWordList() {
-    const wordList = document.getElementById("wordList");
-    wordList.innerHTML = "";
-
-    for (const word of this.words) {
-      const div = document.createElement("div");
-      div.className = "word-item";
-      div.textContent = word.charAt(0).toUpperCase() + word.slice(1);
-
-      if (this.foundWords.has(word)) {
-        div.classList.add("found");
-      }
-
-      wordList.appendChild(div);
-    }
+  showModal(modalElement) {
+    modalElement.classList.remove("hidden");
+    modalElement.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
   }
 
-  /**
-   * Update word list (mark found words)
-   */
-  updateWordList() {
-    for (const word of this.words) {
-      const wordItems = document.querySelectorAll(".word-item");
-      wordItems.forEach(item => {
-        if (item.textContent.toLowerCase() === word) {
-          if (this.foundWords.has(word)) {
-            item.classList.add("found");
-          } else {
-            item.classList.remove("found");
-          }
-        }
-      });
-    }
+  hideModal(modalElement) {
+    modalElement.classList.add("hidden");
+    modalElement.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
   }
 
-  /**
-   * Attach event listeners
-   */
-  attachEventListeners() {
-    const submitButton = document.getElementById("submitButton");
-    submitButton.addEventListener("click", () => this.handleSubmit());
+  showCompletionModal() {
+    this.completionMessage.textContent = "Awesome job! You finished the word search!";
+    this.showModal(this.completionModal);
+  }
 
-    // Clear selection on document click outside grid
-    document.addEventListener("click", (e) => {
-      if (!e.target.closest(".crossword-grid")) {
+  attachGlobalEventListeners() {
+    document.addEventListener("mouseup", () => this.handleGlobalMouseUp());
+
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".crossword-grid")) {
         this.clearSelection();
       }
     });
-  }
 
-  /**
-   * Handle submit button click
-   */
-  handleSubmit() {
-    if (this.foundWords.size === this.words.length) {
-      alert("Congratulations! You found all the words!");
-    } else {
-      alert(`You found ${this.foundWords.size} out of ${this.words.length} words. Keep searching!`);
-    }
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !this.completionModal.classList.contains("hidden")) {
+        this.hideModal(this.completionModal);
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      this.setResponsiveLayout();
+    });
+
+    this.playAgainButton.addEventListener("click", () => this.startGame());
   }
 }
 
-// Initialize game when page loads
 window.addEventListener("load", () => {
   new WordSearchGame();
 });

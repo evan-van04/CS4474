@@ -125,6 +125,22 @@ function getInvalidWords(filledWords) {
   return filledWords.filter((entry) => !validWordSet.has(entry.normalized));
 }
 
+function getDuplicateWords(filledWords) {
+  const seenWords = new Map();
+  const duplicateWords = [];
+
+  filledWords.forEach((entry) => {
+    if (seenWords.has(entry.normalized)) {
+      duplicateWords.push(entry);
+      return;
+    }
+
+    seenWords.set(entry.normalized, entry);
+  });
+
+  return duplicateWords;
+}
+
 function buildInvalidWordsMessage(invalidWords) {
   const invalidList = invalidWords.map((entry) => `"${entry.value}"`).join(", ");
 
@@ -133,6 +149,25 @@ function buildInvalidWordsMessage(invalidWords) {
   }
 
   return `These words are not in the word bank: ${invalidList}. Please enter real supported words.`;
+}
+
+function buildDuplicateWordsMessage(duplicateWords) {
+  const uniqueDuplicateMap = new Map();
+
+  duplicateWords.forEach((entry) => {
+    if (!uniqueDuplicateMap.has(entry.normalized)) {
+      uniqueDuplicateMap.set(entry.normalized, entry.value);
+    }
+  });
+
+  const uniqueDuplicateValues = Array.from(uniqueDuplicateMap.values());
+  const duplicateList = uniqueDuplicateValues.map((word) => `"${word}"`).join(", ");
+
+  if (uniqueDuplicateValues.length === 1) {
+    return `${duplicateList} is a duplicate word. Please enter each word only once.`;
+  }
+
+  return `These are duplicate words: ${duplicateList}. Please enter each word only once.`;
 }
 
 function handleConfirm() {
@@ -147,6 +182,13 @@ function handleConfirm() {
 
   if (validWordSet.size === 0) {
     showInvalidWordError("The word bank could not be loaded. Please try again.");
+    return;
+  }
+
+  const duplicateWords = getDuplicateWords(filledWords);
+
+  if (duplicateWords.length > 0) {
+    showInvalidWordError(buildDuplicateWordsMessage(duplicateWords));
     return;
   }
 
