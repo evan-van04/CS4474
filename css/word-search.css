@@ -1,0 +1,451 @@
+:root {
+  --bg: #dbeef0;
+  --header-bg: #f4f4f4;
+  --nav-blue: #466592;
+  --dark-blue: #274a7e;
+  --mid-blue: #8fb3cf;
+  --shadow: 0 8px 16px rgba(0, 0, 0, 0.16);
+  --white: #ffffff;
+  --success-green: #4caf50;
+  --invalid-red: #f44336;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+img {
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+button,
+input {
+  border: none;
+  outline: none;
+  font: inherit;
+}
+
+.word-search-screen {
+  height: 100vh;
+  background: var(--bg);
+  display: grid;
+  grid-template-rows: 90px 1fr;
+}
+
+/* Top Bar */
+.top-bar {
+  background: var(--header-bg);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  box-shadow: var(--shadow);
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--nav-blue);
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.nav-button:hover {
+  background: rgba(70, 101, 146, 0.1);
+}
+
+.nav-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.nav-label {
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--nav-blue);
+}
+
+.top-title-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.top-title-image {
+  width: min(300px, 50vw);
+}
+
+/* Game Content */
+.game-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.page-title {
+  margin: 0 0 20px;
+  font-family: "Titan One", sans-serif;
+  font-size: 3rem;
+  color: var(--dark-blue);
+  text-align: center;
+}
+
+.game-container {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: start;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Grid Section */
+.grid-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.word-search-grid {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  display: inline-grid;
+  grid-template-columns: repeat(10, 40px);
+  grid-template-rows: repeat(10, 40px);
+  gap: 4px;
+}
+
+.grid-cell {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  border: 2px solid var(--mid-blue);
+  border-radius: 6px;
+  font-family: "Inter", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dark-blue);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+}
+
+.grid-cell:hover {
+  transform: scale(1.05);
+  background: rgba(143, 179, 207, 0.1);
+}
+
+.grid-cell.selected {
+  background: var(--mid-blue);
+  color: var(--white);
+  transform: scale(1.1);
+}
+
+.grid-cell.found {
+  background: var(--success-green);
+  color: var(--white);
+  border-color: var(--success-green);
+}
+
+.grid-cell.invalid {
+  background: var(--invalid-red);
+  color: var(--white);
+  border-color: var(--invalid-red);
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.submit-button {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--success-green);
+  box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submit-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(76, 175, 80, 0.4);
+}
+
+.submit-button:active {
+  transform: translateY(-2px);
+}
+
+.check-icon {
+  width: 70px;
+  height: 70px;
+}
+
+/* Word List Section */
+.word-list-section {
+  background: var(--white);
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  min-width: 250px;
+}
+
+.word-list-title {
+  margin: 0 0 16px;
+  font-family: "Titan One", sans-serif;
+  font-size: 1.5rem;
+  color: var(--dark-blue);
+}
+
+.word-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.word-item {
+  padding: 12px 16px;
+  background: var(--bg);
+  border-radius: 8px;
+  font-family: "Inter", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--dark-blue);
+  transition: all 0.3s;
+  position: relative;
+}
+
+.word-item.found {
+  color: var(--success-green);
+  text-decoration: line-through;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.congrats-modal {
+  background: var(--white);
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.celebration-image {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+}
+
+.congrats-message {
+  margin: 0 0 8px;
+  font-family: "Titan One", sans-serif;
+  font-size: 2rem;
+  color: var(--dark-blue);
+}
+
+.congrats-subtitle {
+  margin: 0 0 24px;
+  font-family: "Inter", sans-serif;
+  font-size: 1.1rem;
+  color: var(--nav-blue);
+}
+
+.congrats-button {
+  padding: 14px 32px;
+  background: var(--success-green);
+  color: var(--white);
+  border-radius: 999px;
+  font-family: "Inter", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.congrats-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3);
+}
+
+.congrats-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  body {
+    overflow-y: auto;
+  }
+
+  .game-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .word-search-grid {
+    grid-template-columns: repeat(10, 36px);
+    grid-template-rows: repeat(10, 36px);
+    gap: 3px;
+  }
+
+  .grid-cell {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 760px) {
+  body {
+    overflow-y: auto;
+  }
+
+  .top-bar {
+    grid-template-columns: 1fr auto 1fr;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .nav-icon {
+    width: 28px;
+  }
+
+  .nav-label {
+    font-size: 0.65rem;
+  }
+
+  .top-title-image {
+    width: min(200px, 50vw);
+  }
+
+  .game-content {
+    padding: 12px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+
+  .game-container {
+    gap: 16px;
+  }
+
+  .word-search-grid {
+    grid-template-columns: repeat(10, 32px);
+    grid-template-rows: repeat(10, 32px);
+    gap: 2px;
+    padding: 12px;
+  }
+
+  .grid-cell {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+    border-width: 1px;
+  }
+
+  .submit-button {
+    width: 90px;
+    height: 90px;
+  }
+
+  .check-icon {
+    width: 50px;
+  }
+
+  .word-list-section {
+    min-width: auto;
+    padding: 16px;
+  }
+
+  .word-list-title {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .word-item {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+
+  .congrats-modal {
+    padding: 24px;
+    max-width: 300px;
+  }
+
+  .congrats-message {
+    font-size: 1.5rem;
+  }
+
+  .congrats-subtitle {
+    font-size: 0.95rem;
+  }
+}

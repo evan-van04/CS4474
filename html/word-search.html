@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spelling Central - Word Search</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/word-search.css" />
+</head>
+<body>
+  <main class="word-search-screen">
+    <header class="top-bar">
+      <a href="home-screen.html" class="nav-button nav-left" aria-label="Go Home">
+        <img src="../assets/home.png" alt="" class="nav-icon" />
+        <span class="nav-label">HOME</span>
+      </a>
+
+      <div class="top-title-wrap">
+        <img src="../assets/title.png" alt="Spelling Central" class="top-title-image" />
+      </div>
+
+      <button class="nav-button nav-right back-button" type="button" aria-label="Go Back" onclick="history.back()">
+        <img src="../assets/back.png" alt="" class="nav-icon" />
+        <span class="nav-label">BACK</span>
+      </button>
+    </header>
+
+    <section class="game-content">
+      <h1 class="page-title">Word Search</h1>
+
+      <div class="game-container">
+        <!-- Word Search Grid -->
+        <div class="grid-section">
+          <div id="wordSearchGrid" class="word-search-grid"></div>
+          <button class="submit-button" id="submitButton" type="button">
+            <img src="../assets/check.png" alt="" class="check-icon" />
+          </button>
+        </div>
+
+        <!-- Word List -->
+        <div class="word-list-section">
+          <h2 class="word-list-title">Words to Find</h2>
+          <ul class="word-list" id="wordList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Congratulations Modal -->
+    <div class="modal-overlay hidden" id="congratsModal" aria-hidden="true">
+      <div class="congrats-modal" role="dialog" aria-modal="true" aria-labelledby="congratsMessage">
+        <img src="../assets/celebration.png" alt="" class="celebration-image" />
+        <p class="congrats-message" id="congratsMessage">Congratulations!</p>
+        <p class="congrats-subtitle">You found all the words!</p>
+        <button class="congrats-button" id="congratsButton" type="button">AWESOME!</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/word-search.js"></script>
+</body>
+</html>
