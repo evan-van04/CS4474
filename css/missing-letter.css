@@ -1,0 +1,19 @@
+.missing-input {
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  padding: 0;
+  text-align: center;
+  text-transform: uppercase;
+  caret-color: transparent;
+  cursor: text;
+}
+
+.missing-input:focus {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 16px rgba(0, 0, 0, 0.14);
+}
+
+.missing-input::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
