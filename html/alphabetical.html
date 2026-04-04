@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spelling Central - Alphabetical</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/alphabetical.css" />
+</head>
+<body>
+  <main class="alphabetical-screen">
+    <header class="top-bar">
+      <a href="home-screen.html" class="nav-button nav-left" aria-label="Go Home">
+        <img src="../assets/home.png" alt="" class="nav-icon" />
+        <span class="nav-label">HOME</span>
+      </a>
+
+      <div class="top-title-wrap">
+        <img src="../assets/title.png" alt="Spelling Central" class="top-title-image" />
+      </div>
+
+      <button class="nav-button nav-right back-button" type="button" aria-label="Go Back" onclick="history.back()">
+        <img src="../assets/back.png" alt="" class="nav-icon" />
+        <span class="nav-label">BACK</span>
+      </button>
+    </header>
+
+    <section class="game-content">
+      <img src="../assets/cloud-left.png" alt="" class="cloud cloud-left-mid" />
+      <img src="../assets/cloud-right.png" alt="" class="cloud cloud-right-bottom" />
+
+      <h1 class="page-title">Alphabetical</h1>
+      <p class="game-instruction">Drag or move the words into alphabetical order. Then tap the check mark to see if they are correct.</p>
+
+      <div class="alphabetical-container">
+        <ol class="order-list" id="orderList" aria-label="Alphabetical ordering list"></ol>
+        <div class="button-row">
+          <button class="submit-button" id="checkButton" type="button" aria-label="Check alphabetical order">
+            <img src="../assets/check.png" alt="Check order" class="check-icon" />
+          </button>
+          <button class="reset-button" id="resetButton" type="button">Shuffle</button>
+        </div>
+      </div>
+
+      <div class="empty-state hidden" id="emptyState">
+        <p>No words were found. Please add words on the Input Words page before playing.</p>
+        <a class="empty-link" href="input-words.html">Add words now</a>
+      </div>
+    </section>
+
+    <div class="modal-overlay hidden" id="messageModal" aria-hidden="true">
+      <div class="message-modal" role="dialog" aria-modal="true" aria-labelledby="messageTitle">
+        <p class="message-title" id="messageTitle">Great job!</p>
+        <p class="message-text" id="messageText">You ordered the words correctly.</p>
+        <button class="message-button" id="closeMessageButton" type="button">OK</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/alphabetical.js"></script>
+</body>
+</html>
