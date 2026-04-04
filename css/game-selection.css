@@ -54,6 +54,7 @@ a {
 .nav-button {
   background: transparent;
   border: none;
+  outline: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -68,6 +69,11 @@ a {
 
 .nav-button:hover {
   transform: translateY(-1px);
+}
+
+.nav-button:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .nav-left {

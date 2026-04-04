@@ -33,31 +33,23 @@
       <h1 class="page-title">Word Search</h1>
 
       <div class="game-container">
-        <!-- Word Search Grid -->
+        <!-- Crossword Grid -->
         <div class="grid-section">
-          <div id="wordSearchGrid" class="word-search-grid"></div>
+          <div id="wordSearchGrid" class="crossword-grid"></div>
+        </div>
+
+        <!-- Word Bank -->
+        <div class="word-bank-wrapper">
+          <div class="word-bank-section">
+            <h2 class="word-bank-title">Words</h2>
+            <div class="word-bank" id="wordList"></div>
+          </div>
           <button class="submit-button" id="submitButton" type="button">
             <img src="../assets/check.png" alt="" class="check-icon" />
           </button>
         </div>
-
-        <!-- Word List -->
-        <div class="word-list-section">
-          <h2 class="word-list-title">Words to Find</h2>
-          <ul class="word-list" id="wordList"></ul>
-        </div>
       </div>
     </section>
-
-    <!-- Congratulations Modal -->
-    <div class="modal-overlay hidden" id="congratsModal" aria-hidden="true">
-      <div class="congrats-modal" role="dialog" aria-modal="true" aria-labelledby="congratsMessage">
-        <img src="../assets/celebration.png" alt="" class="celebration-image" />
-        <p class="congrats-message" id="congratsMessage">Congratulations!</p>
-        <p class="congrats-subtitle">You found all the words!</p>
-        <button class="congrats-button" id="congratsButton" type="button">AWESOME!</button>
-      </div>
-    </div>
   </main>
 
   <script src="../js/word-search.js"></script>

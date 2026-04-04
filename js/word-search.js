@@ -6,6 +6,7 @@ class WordSearchGame {
     this.foundWords = new Set();
     this.selectedCells = [];
     this.isSelecting = false;
+    this.wordPositions = new Map();
     
     this.init();
   }
@@ -155,6 +156,24 @@ class WordSearchGame {
       const newCol = col + i * dCol;
       this.grid[newRow][newCol] = word[i];
     }
+    
+    // Determine direction and store position
+    let direction = "horizontal";
+    if (dRow === 0 && Math.abs(dCol) === 1) {
+      direction = "horizontal";
+    } else if (dCol === 0 && Math.abs(dRow) === 1) {
+      direction = "vertical";
+    } else if (Math.abs(dRow) === 1 && Math.abs(dCol) === 1) {
+      direction = "diagonal";
+    }
+    
+    this.wordPositions.set(word, {
+      row,
+      col,
+      dRow,
+      dCol,
+      direction
+    });
   }
 
   /**
@@ -319,21 +338,24 @@ class WordSearchGame {
       .join("")
       .toLowerCase();
 
+    // Get direction of selection
+    const direction = this.getSelectionDirection();
+
     // Check forward
     if (this.words.includes(selectedWord) && !this.foundWords.has(selectedWord)) {
       this.markWordAsFound(selectedWord);
-      this.highlightFoundCells("found");
+      this.highlightFoundCells(direction);
     } else if (this.words.includes(selectedWord) && this.foundWords.has(selectedWord)) {
       // Already found
-      this.highlightFoundCells("found");
+      this.highlightFoundCells(direction);
     } else {
       // Check backward
       const reversedWord = selectedWord.split("").reverse().join("");
       if (this.words.includes(reversedWord) && !this.foundWords.has(reversedWord)) {
         this.markWordAsFound(reversedWord);
-        this.highlightFoundCells("found");
+        this.highlightFoundCells(direction);
       } else if (this.words.includes(reversedWord) && this.foundWords.has(reversedWord)) {
-        this.highlightFoundCells("found");
+        this.highlightFoundCells(direction);
       } else {
         // Invalid word
         this.highlightFoundCells("invalid");
@@ -345,25 +367,44 @@ class WordSearchGame {
   }
 
   /**
+   * Get the direction of the current selection
+   */
+  getSelectionDirection() {
+    if (this.selectedCells.length < 2) return "horizontal";
+    
+    const first = this.selectedCells[0];
+    const last = this.selectedCells[this.selectedCells.length - 1];
+    
+    const rowDiff = last[0] - first[0];
+    const colDiff = last[1] - first[1];
+    
+    if (rowDiff === 0) {
+      return "horizontal";
+    } else if (colDiff === 0) {
+      return "vertical";
+    } else {
+      return "diagonal";
+    }
+  }
+
+  /**
    * Mark a word as found
    */
   markWordAsFound(word) {
     this.foundWords.add(word);
     this.updateWordList();
-
-    if (this.foundWords.size === this.words.length) {
-      this.showCongratsModal();
-    }
   }
 
   /**
    * Highlight found cells in a specific way
    */
-  highlightFoundCells(className) {
+  highlightFoundCells(direction) {
     for (const [row, col] of this.selectedCells) {
       const cell = document.getElementById(`cell-${row}-${col}`);
       if (cell) {
-        cell.classList.add(className);
+        // Remove selected class but keep the color
+        cell.classList.remove("selected", "invalid");
+        cell.classList.add(direction); // Add horizontal, vertical, or diagonal class
       }
     }
   }
@@ -384,15 +425,15 @@ class WordSearchGame {
     wordList.innerHTML = "";
 
     for (const word of this.words) {
-      const li = document.createElement("li");
-      li.className = "word-item";
-      li.textContent = word.charAt(0).toUpperCase() + word.slice(1);
+      const div = document.createElement("div");
+      div.className = "word-item";
+      div.textContent = word.charAt(0).toUpperCase() + word.slice(1);
 
       if (this.foundWords.has(word)) {
-        li.classList.add("found");
+        div.classList.add("found");
       }
 
-      wordList.appendChild(li);
+      wordList.appendChild(div);
     }
   }
 
@@ -415,20 +456,6 @@ class WordSearchGame {
   }
 
   /**
-   * Show congratulations modal
-   */
-  showCongratsModal() {
-    const modal = document.getElementById("congratsModal");
-    modal.classList.remove("hidden");
-    modal.setAttribute("aria-hidden", "false");
-
-    document.getElementById("congratsButton").addEventListener("click", () => {
-      modal.classList.add("hidden");
-      modal.setAttribute("aria-hidden", "true");
-    });
-  }
-
-  /**
    * Attach event listeners
    */
   attachEventListeners() {
@@ -437,7 +464,7 @@ class WordSearchGame {
 
     // Clear selection on document click outside grid
     document.addEventListener("click", (e) => {
-      if (!e.target.closest(".word-search-grid")) {
+      if (!e.target.closest(".crossword-grid")) {
         this.clearSelection();
       }
     });
@@ -448,7 +475,7 @@ class WordSearchGame {
    */
   handleSubmit() {
     if (this.foundWords.size === this.words.length) {
-      this.showCongratsModal();
+      alert("Congratulations! You found all the words!");
     } else {
       alert(`You found ${this.foundWords.size} out of ${this.words.length} words. Keep searching!`);
     }

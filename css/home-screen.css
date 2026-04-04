@@ -101,14 +101,17 @@ button {
   line-height: 1;
   color: var(--button-text);
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .play-button:hover {
-  transform: translateY(-1px);
+  transform: translateY(-5px) scale(1.08);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25), 0 0 50px rgba(36, 69, 110, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.3);
+  background: #b0d1e8;
 }
 
 .play-button:active {
-  transform: translateY(1px);
+  transform: translateY(1px) scale(1.05);
 }
 
 .kids-balloon {
@@ -116,6 +119,16 @@ button {
   width: clamp(280px, 28vw, 436px);
   right: 6.8%;
   bottom: 5.8%;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 @media (max-width: 900px) {

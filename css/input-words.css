@@ -55,11 +55,12 @@ input {
 
 .nav-button {
   background: transparent;
+  border: none;
+  outline: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  gap: 2px;
+  justify-content: flex-start;\n  gap: 2px;
   cursor: pointer;
   color: var(--nav-blue);
   transition: transform 0.15s ease;
@@ -69,6 +70,11 @@ input {
 
 .nav-button:hover {
   transform: translateY(-1px);
+}
+
+.nav-button:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .nav-left {
