@@ -39,6 +39,12 @@ class WordSearchGame {
     this.completionMessage = document.getElementById("completionMessage");
     this.playAgainButton = document.getElementById("playAgainButton");
 
+    this.correctSound = new Audio("../sfx/correct.wav");
+    this.incorrectSound = new Audio("../sfx/incorrect.wav");
+
+    this.correctSound.preload = "auto";
+    this.incorrectSound.preload = "auto";
+
     this.init();
   }
 
@@ -102,6 +108,17 @@ class WordSearchGame {
 
     return copy;
   }
+
+  playSound(sound) {
+  if (!sound) {
+    return;
+  }
+
+  sound.currentTime = 0;
+  sound.play().catch(() => {
+    // Ignore play interruptions/browser timing issues.
+  });
+}
 
   startGame() {
     this.hideModal(this.completionModal);
@@ -544,6 +561,7 @@ class WordSearchGame {
       return;
     }
 
+    this.playSound(this.incorrectSound);
     this.highlightSelection("invalid");
     window.setTimeout(() => this.clearSelection(), 280);
   }
@@ -564,16 +582,17 @@ class WordSearchGame {
 
   completeWord(word) {
     this.foundWords.add(word);
-
+    this.playSound(this.correctSound);
+    
     const colorClass = this.wordColorClasses.get(word) || this.getNextFoundColorClass();
     this.wordColorClasses.set(word, colorClass);
-
+    
     this.highlightSelection(colorClass);
     this.updateWordList();
-
+    
     window.setTimeout(() => {
       this.clearSelection();
-
+    
       if (this.foundWords.size === this.words.length) {
         this.showCompletionModal();
       }

@@ -6,6 +6,8 @@ const hintBubble = document.getElementById("hintBubble");
 const progressPill = document.getElementById("progressPill");
 const completionModal = document.getElementById("completionModal");
 const playAgainButton = document.getElementById("playAgainButton");
+const correctSound = new Audio("../sfx/correct.wav");
+correctSound.preload = "auto";
 
 const gameState = {
   words: [],
@@ -38,6 +40,17 @@ function moveItem(array, fromIndex, toIndex) {
   const [moved] = copy.splice(fromIndex, 1);
   copy.splice(toIndex, 0, moved);
   return copy;
+}
+
+function playSound(sound) {
+  if (!sound) {
+    return;
+  }
+
+  sound.currentTime = 0;
+  sound.play().catch(() => {
+    // Ignore browser timing/play interruptions.
+  });
 }
 
 function getStoredWords() {
@@ -256,6 +269,14 @@ function evaluateAfterMove() {
   if (isCurrentWordSolved()) {
     gameState.interactionLocked = true;
     renderLetters();
+    playSound(correctSound);
+
+    if (gameState.currentIndex >= gameState.words.length - 1) {
+      setHintText("You did it!");
+      showModal(completionModal);
+      return;
+    }
+
     startCountdown();
   }
 }

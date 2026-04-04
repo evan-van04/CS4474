@@ -6,6 +6,8 @@ const resetButton = document.getElementById("resetButton");
 const emptyState = document.getElementById("emptyState");
 const completionModal = document.getElementById("completionModal");
 const playAgainButton = document.getElementById("playAgainButton");
+const correctSound = new Audio("../sfx/correct.wav");
+correctSound.preload = "auto";
 
 const gameState = {
   originalWords: [],
@@ -124,6 +126,17 @@ function removeDragGhost() {
     gameState.currentDragGhost.remove();
     gameState.currentDragGhost = null;
   }
+}
+
+function playSound(sound) {
+  if (!sound) {
+    return;
+  }
+
+  sound.currentTime = 0;
+  sound.play().catch(() => {
+    // Ignore browser timing/play interruptions.
+  });
 }
 
 const MODAL_CLOSE_DURATION = 380;
@@ -350,6 +363,7 @@ function evaluateAfterMove() {
   if (gameState.hasMadeFirstMove && isSolved()) {
     gameState.interactionLocked = true;
     renderWords();
+    playSound(correctSound);
     showModal(completionModal);
   }
 }
