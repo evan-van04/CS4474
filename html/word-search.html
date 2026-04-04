@@ -30,26 +30,31 @@
     </header>
 
     <section class="game-content">
-      <h1 class="page-title">Word Search</h1>
+      <section class="game-shell" aria-label="Word Search game">
+        <h1 class="page-title">Word Search</h1>
 
-      <div class="game-container">
-        <!-- Crossword Grid -->
-        <div class="grid-section">
-          <div id="wordSearchGrid" class="crossword-grid"></div>
-        </div>
-
-        <!-- Word Bank -->
-        <div class="word-bank-wrapper">
-          <div class="word-bank-section">
-            <h2 class="word-bank-title">Words</h2>
-            <div class="word-bank" id="wordList"></div>
+        <div class="game-container">
+          <div class="grid-section">
+            <div id="wordSearchGrid" class="crossword-grid" aria-label="Word search letter grid"></div>
           </div>
-          <button class="submit-button" id="submitButton" type="button">
-            <img src="../assets/check.png" alt="" class="check-icon" />
-          </button>
+
+          <div class="word-bank-wrapper">
+            <div class="word-bank-section">
+              <h2 class="word-bank-title">Words</h2>
+              <div class="word-bank" id="wordList" aria-live="polite"></div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     </section>
+
+    <div class="modal-overlay hidden" id="completionModal" aria-hidden="true">
+      <div class="error-modal" role="dialog" aria-modal="true" aria-labelledby="completionMessage">
+        <img src="../assets/happy-cloud.png" alt="" class="error-cloud" />
+        <p class="error-message" id="completionMessage">Awesome job! You finished the word search!</p>
+        <button class="error-close-button" id="playAgainButton" type="button">PLAY AGAIN</button>
+      </div>
+    </div>
   </main>
 
   <script src="../js/word-search.js"></script>
