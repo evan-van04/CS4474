@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spelling Central - Mixed Words</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/mixed-words.css" />
+</head>
+<body>
+  <main class="mixed-words-screen">
+    <header class="top-bar">
+      <a href="home-screen.html" class="nav-button nav-left" aria-label="Go Home">
+        <img src="../assets/home.png" alt="" class="nav-icon" />
+        <span class="nav-label">HOME</span>
+      </a>
+
+      <div class="top-title-wrap">
+        <img src="../assets/title.png" alt="Spelling Central" class="top-title-image" />
+      </div>
+
+      <button class="nav-button nav-right back-button" type="button" aria-label="Go Back" onclick="history.back()">
+        <img src="../assets/back.png" alt="" class="nav-icon" />
+        <span class="nav-label">BACK</span>
+      </button>
+    </header>
+
+    <section class="mixed-words-content">
+      <img src="../assets/cloud-left.png" alt="" class="cloud cloud-left-mid" />
+      <img src="../assets/cloud-right.png" alt="" class="cloud cloud-right-bottom" />
+
+      <section class="game-shell" aria-label="Mixed Words game">
+        <h1 class="page-title">Mixed Words</h1>
+
+        <div class="letters-wrap">
+          <div class="letters-row" id="lettersRow" aria-live="polite"></div>
+        </div>
+
+        <p class="hint-bubble" id="hintBubble">Get ready!</p>
+        <div class="progress-pill" id="progressPill">0/0</div>
+      </section>
+    </section>
+
+    <div class="modal-overlay hidden" id="completionModal" aria-hidden="true">
+      <div class="error-modal" role="dialog" aria-modal="true" aria-labelledby="completionMessage">
+        <img src="../assets/happy-cloud.png" alt="" class="error-cloud" />
+        <p class="error-message" id="completionMessage">Awesome job! You finished all the mixed words!</p>
+        <button class="error-close-button" id="playAgainButton" type="button">PLAY AGAIN</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/word-bank.js"></script>
+  <script src="../js/mixed-words.js"></script>
+</body>
+</html>
