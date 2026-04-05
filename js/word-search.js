@@ -686,7 +686,9 @@ hideModal(modalElement) {
       this.setResponsiveLayout();
     });
 
-    this.playAgainButton.addEventListener("click", () => this.startGame());
+    this.playAgainButton.addEventListener("click", () => {
+      window.location.href = "game-selection.html";
+    });
   }
 }
 
