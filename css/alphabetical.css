@@ -347,10 +347,28 @@ a {
 .reset-button {
   min-width: var(--alpha-reset-width);
   height: var(--alpha-reset-height);
-  background: var(--dark-blue);
-  color: var(--white);
+  background: var(--white);
+  color: #EE6B4D;
   padding: 0 24px;
   font-size: var(--alpha-reset-font-size);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.16);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.shuffle-icon {
+  width: 28px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.reset-label {
+  font-family: "Inter", sans-serif;
+  font-weight: 800;
+  font-size: var(--alpha-reset-font-size);
+  color: #EE6B4D;
 }
 
 .empty-state {

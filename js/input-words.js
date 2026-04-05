@@ -3,6 +3,8 @@ const STORAGE_KEY = "spellingCentralWords";
 
 const inputs = Array.from(document.querySelectorAll(".word-input"));
 const confirmButton = document.getElementById("confirmButton");
+const clearButton = document.getElementById("clearButton");
+const customizeButton = document.getElementById("customizeButton");
 
 const countErrorModal = document.getElementById("countErrorModal");
 const countErrorMessage = document.getElementById("countErrorMessage");
@@ -92,23 +94,60 @@ function clearWordsFromStorage() {
   sessionStorage.removeItem(STORAGE_KEY);
 }
 
+const MODAL_CLOSE_DURATION = 380;
+
 function showModal(modalElement) {
+  if (modalElement.hideTimer) {
+    window.clearTimeout(modalElement.hideTimer);
+    modalElement.hideTimer = null;
+  }
+
   modalElement.classList.remove("hidden");
   modalElement.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
+
+  window.requestAnimationFrame(() => {
+    modalElement.classList.add("is-visible");
+  });
 }
 
 function hideModal(modalElement) {
-  modalElement.classList.add("hidden");
+  if (modalElement.classList.contains("hidden")) {
+    modalElement.classList.remove("is-visible");
+    modalElement.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    return;
+  }
+
+  modalElement.classList.remove("is-visible");
   modalElement.setAttribute("aria-hidden", "true");
 
-  const anyModalOpen =
-    !countErrorModal.classList.contains("hidden") ||
-    !invalidWordModal.classList.contains("hidden");
+  const anyModalStillVisible =
+    countErrorModal.classList.contains("is-visible") ||
+    invalidWordModal.classList.contains("is-visible");
 
-  if (!anyModalOpen) {
+  if (!anyModalStillVisible) {
     document.body.style.overflow = "";
   }
+
+  if (modalElement.hideTimer) {
+    window.clearTimeout(modalElement.hideTimer);
+  }
+
+  modalElement.hideTimer = window.setTimeout(() => {
+    if (!modalElement.classList.contains("is-visible")) {
+      modalElement.classList.add("hidden");
+    }
+    modalElement.hideTimer = null;
+
+    const anyModalOpen =
+      !countErrorModal.classList.contains("hidden") ||
+      !invalidWordModal.classList.contains("hidden");
+
+    if (!anyModalOpen) {
+      document.body.style.overflow = "";
+    }
+  }, MODAL_CLOSE_DURATION);
 }
 
 function showCountError(message) {
@@ -168,6 +207,40 @@ function buildDuplicateWordsMessage(duplicateWords) {
   }
 
   return `These are duplicate words: ${duplicateList}. Please enter each word only once.`;
+}
+
+function getRandomWords(count) {
+  if (!Array.isArray(WORD_BANK) || WORD_BANK.length === 0) {
+    return [];
+  }
+
+  const shuffled = [...WORD_BANK].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}
+
+function fillInputsWithWords(words) {
+  inputs.forEach((input, index) => {
+    if (index < words.length) {
+      input.value = words[index].word.charAt(0).toUpperCase() + words[index].word.slice(1).toLowerCase();
+    } else {
+      input.value = "";
+    }
+  });
+
+  saveWordsToStorage();
+}
+
+function handleClear() {
+  inputs.forEach((input) => {
+    input.value = "";
+  });
+
+  saveWordsToStorage();
+}
+
+function handleCustomize() {
+  const randomWords = getRandomWords(20);
+  fillInputsWithWords(randomWords);
 }
 
 function handleConfirm() {
@@ -238,6 +311,8 @@ inputs.forEach((input) => {
 });
 
 confirmButton.addEventListener("click", handleConfirm);
+clearButton.addEventListener("click", handleClear);
+customizeButton.addEventListener("click", handleCustomize);
 
 closeCountErrorModalButton.addEventListener("click", () => {
   hideModal(countErrorModal);
@@ -267,7 +342,16 @@ window.addEventListener("beforeunload", () => {
 
 function initializeInputWordsPage() {
   buildWordSet();
-  loadWordsFromStorage();
+
+  const raw = sessionStorage.getItem(STORAGE_KEY);
+  const hasSavedWords = raw && JSON.parse(raw)?.length > 0;
+
+  if (hasSavedWords) {
+    loadWordsFromStorage();
+  } else {
+    const randomWords = getRandomWords(20);
+    fillInputsWithWords(randomWords);
+  }
 }
 
 initializeInputWordsPage();

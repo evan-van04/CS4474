@@ -58,9 +58,21 @@
         <label class="word-card"><span class="word-number">20</span><input type="text" class="word-input" maxlength="18" data-slot="20" /></label>
       </section>
 
-      <button class="confirm-button" id="confirmButton" type="button" aria-label="Confirm words">
-        <img src="../assets/check.png" alt="" class="check-icon" />
-      </button>
+      <div class="button-row">
+        <button class="action-button" id="clearButton" type="button" aria-label="Clear all words">
+          <span class="action-label">Clear<br>Words</span>
+          <img src="../assets/clear.png" alt="" class="action-icon" />
+        </button>
+
+        <button class="confirm-button" id="confirmButton" type="button" aria-label="Confirm words">
+          <img src="../assets/check.png" alt="" class="check-icon" />
+        </button>
+
+        <button class="action-button" id="customizeButton" type="button" aria-label="Randomize words">
+          <span class="action-label">Customize<br>Words</span>
+          <img src="../assets/customize.png" alt="" class="action-icon" />
+        </button>
+      </div>
     </section>
 
     <!-- Not Enough Words Popup -->

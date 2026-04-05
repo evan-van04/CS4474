@@ -208,11 +208,20 @@ input {
   color: transparent;
 }
 
+/* button row */
+.button-row {
+  margin: 18px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
 /* confirm button */
 .confirm-button {
-  margin: 18px auto 0;
-  width: 290px;
-  height: 82px;
+  width: 110px;
+  height: 68px;
   border-radius: 999px;
   background: #f4f4f4;
   box-shadow: var(--shadow);
@@ -233,20 +242,84 @@ input {
 }
 
 .check-icon {
-  width: 58px;
+  width: 38px;
   height: auto;
+}
+
+/* action buttons (clear / customize) */
+.action-button {
+  min-width: 110px;
+  height: 68px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 22px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+}
+
+.action-button:active {
+  transform: translateY(1px);
+}
+
+.action-label {
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #EE6B4D;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.action-icon {
+  width: 26px;
+  height: auto;
+  flex-shrink: 0;
 }
 
 /* modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(39, 74, 126, 0.22);
+  background: rgba(39, 74, 126, 0.28);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 24px;
+  align-items: center;
+  padding: 20px;
   z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.modal-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-overlay .error-modal {
+  transform: translateY(-120px);
+  opacity: 0;
+  transform-origin: top center;
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.28s ease;
+  will-change: transform, opacity;
+}
+
+.modal-overlay.is-visible .error-modal,
+.modal-overlay.is-visible .message-modal {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .hidden {
@@ -281,16 +354,18 @@ input {
 }
 
 .error-close-button {
-  min-width: 120px;
-  height: 48px;
+  min-width: 150px;
+  height: 50px;
+  border: none;
   border-radius: 999px;
   background: var(--dark-blue);
   color: #ffffff;
   font-family: "Inter", sans-serif;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
   padding: 0 22px;
+  transition: transform 0.15s ease;
 }
 
 .error-close-button:hover {
@@ -374,12 +449,27 @@ input {
   }
 
   .confirm-button {
-    width: 230px;
-    height: 74px;
+    width: 90px;
+    height: 58px;
   }
 
   .check-icon {
-    width: 50px;
+    width: 32px;
+  }
+
+  .action-button {
+    min-width: 90px;
+    height: 58px;
+    padding: 0 16px;
+    gap: 8px;
+  }
+
+  .action-label {
+    font-size: 0.82rem;
+  }
+
+  .action-icon {
+    width: 22px;
   }
 
   .cloud-left-mid,
