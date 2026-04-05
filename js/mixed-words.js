@@ -441,7 +441,9 @@ function handleEscapeKey(event) {
   }
 }
 
-playAgainButton.addEventListener("click", startGame);
+playAgainButton.addEventListener("click", () => {
+  window.location.href = "game-selection.html";
+});
 document.addEventListener("keydown", handleEscapeKey);
 window.addEventListener("resize", setResponsiveLayout);
 

@@ -452,6 +452,10 @@ input {
 }
 
 .error-close-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   min-width: 150px;
   height: 50px;
   border: none;
@@ -507,4 +511,10 @@ input {
   .error-message {
     font-size: 1.1rem;
   }
+}
+.return-icon {
+  width: 22px;
+  height: auto;
+  flex-shrink: 0;
+  filter: brightness(0) invert(1);
 }
