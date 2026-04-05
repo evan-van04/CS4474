@@ -18,6 +18,9 @@ const playAgainButton = document.getElementById("playAgainButton");
 const correctSound = new Audio("../sfx/correct.wav");
 correctSound.preload = "auto";
 
+const incorrectSound = new Audio("../sfx/incorrect.wav");
+incorrectSound.preload = "auto";
+
 /* Game State */
 const gameState = {
   words: [],
@@ -278,6 +281,8 @@ function evaluateGuess() {
     }
 
     startCountdown();
+  } else {
+    playSound(incorrectSound);
   }
 }
 
