@@ -1,3 +1,11 @@
+/*
+  File: input-words.css
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: Stylesheet for the Input Words screen
+*/
+
+/* Variables */
 :root {
   --bg: #dbeef0;
   --header-bg: #f4f4f4;
@@ -8,6 +16,7 @@
   --white: #ffffff;
 }
 
+/* Base Styles */
 * {
   box-sizing: border-box;
 }
@@ -37,6 +46,7 @@ input {
   font: inherit;
 }
 
+/* Screen Layout */
 .input-screen {
   height: 100vh;
   background: var(--bg);
@@ -44,7 +54,7 @@ input {
   grid-template-rows: 90px 1fr;
 }
 
-/* top bar */
+/* Top Nav Bar */
 .top-bar {
   background: var(--header-bg);
   display: grid;
@@ -113,7 +123,7 @@ input {
   height: auto;
 }
 
-/* main content */
+/* Main Content */
 .input-content {
   position: relative;
   padding: 10px 36px 18px;
@@ -132,7 +142,7 @@ input {
   text-shadow: 5px 5px 0 rgba(39, 74, 126, 0.18);
 }
 
-/* decorative clouds */
+/* Decorative Clouds */
 .cloud {
   position: absolute;
   filter: drop-shadow(7px 7px 5px rgba(0, 0, 0, 0.18));
@@ -151,7 +161,7 @@ input {
   bottom: 24px;
 }
 
-/* word grid */
+/* Word Grid */
 .word-grid {
   position: relative;
   z-index: 2;
@@ -208,7 +218,7 @@ input {
   color: transparent;
 }
 
-/* button row */
+/* Action Buttons */
 .button-row {
   margin: 18px auto 0;
   display: flex;
@@ -218,7 +228,6 @@ input {
   flex-shrink: 0;
 }
 
-/* confirm button */
 .confirm-button {
   width: 110px;
   height: 68px;
@@ -246,7 +255,6 @@ input {
   height: auto;
 }
 
-/* action buttons (clear / customize) */
 .action-button {
   min-width: 110px;
   height: 68px;
@@ -286,7 +294,7 @@ input {
   flex-shrink: 0;
 }
 
-/* modal */
+/* Validation Modals */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -376,6 +384,7 @@ input {
   transform: translateY(1px);
 }
 
+/* Responsive Layout */
 @media (max-width: 1200px) {
   body {
     overflow-y: auto;
@@ -392,6 +401,7 @@ input {
   }
 }
 
+/* Mobile Layout */
 @media (max-width: 760px) {
   body {
     overflow-y: auto;

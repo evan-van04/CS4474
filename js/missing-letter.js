@@ -1,6 +1,14 @@
+/*
+  File: missing-letter.js
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: JavaScript for the Missing Letter screen
+*/
+
 const STORAGE_KEY = "spellingCentralWords";
 const COUNTDOWN_START = 3;
 
+/* DOM Elements */
 const lettersRow = document.getElementById("lettersRow");
 const hintBubble = document.getElementById("hintBubble");
 const progressPill = document.getElementById("progressPill");
@@ -10,6 +18,7 @@ const playAgainButton = document.getElementById("playAgainButton");
 const correctSound = new Audio("../sfx/correct.wav");
 correctSound.preload = "auto";
 
+/* Game State */
 const gameState = {
   words: [],
   currentIndex: 0,
@@ -19,6 +28,7 @@ const gameState = {
   interactionLocked: false,
 };
 
+/* Utility Functions */
 function normalizeWord(value) {
   return String(value || "").trim().toLowerCase();
 }
@@ -39,7 +49,6 @@ function playSound(sound) {
 
   sound.currentTime = 0;
   sound.play().catch(() => {
-    // Ignore autoplay timing issues
   });
 }
 
@@ -110,6 +119,7 @@ function updateProgress() {
   progressPill.textContent = `${Math.min(gameState.currentIndex + 1, gameState.words.length)}/${gameState.words.length}`;
 }
 
+/* Layout */
 function setResponsiveLayout() {
   const root = document.documentElement;
   const viewportWidth = window.innerWidth;
@@ -202,6 +212,7 @@ function setResponsiveLayout() {
   );
 }
 
+/* Rendering */
 function getInputStateClass() {
   const expected = gameState.currentWord.word[gameState.missingIndex];
 
@@ -249,6 +260,7 @@ function renderWord() {
   });
 }
 
+/* Gameplay */
 function evaluateGuess() {
   renderWord();
 
@@ -300,6 +312,7 @@ function handleMissingInputKeydown(event) {
 
 const MODAL_CLOSE_DURATION = 380;
 
+/* Modal Helpers */
 function showModal(modalElement) {
   if (modalElement.hideTimer) {
     window.clearTimeout(modalElement.hideTimer);
@@ -339,6 +352,7 @@ function hideModal(modalElement) {
   }, MODAL_CLOSE_DURATION);
 }
 
+/* Game Flow */
 function wait(ms) {
   return new Promise((resolve) => {
     window.setTimeout(resolve, ms);
@@ -387,6 +401,7 @@ function startGame() {
   loadCurrentWord();
 }
 
+/* Event Handling */
 function handleEscapeKey(event) {
   if (event.key !== "Escape") return;
 
@@ -400,4 +415,6 @@ playAgainButton.addEventListener("click", () => {
 });
 document.addEventListener("keydown", handleEscapeKey);
 window.addEventListener("resize", setResponsiveLayout);
+
+/* Initialization */
 document.addEventListener("DOMContentLoaded", startGame);

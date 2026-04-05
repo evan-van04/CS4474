@@ -1,5 +1,13 @@
+/*
+  File: alphabetical.js
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: JavaScript for the Alphabetical screen
+*/
+
 const STORAGE_KEY = "spellingCentralWords";
 
+/* DOM Elements */
 const root = document.documentElement;
 const orderList = document.getElementById("orderList");
 const resetButton = document.getElementById("resetButton");
@@ -9,6 +17,7 @@ const playAgainButton = document.getElementById("playAgainButton");
 const correctSound = new Audio("../sfx/correct.wav");
 correctSound.preload = "auto";
 
+/* Game State */
 const gameState = {
   originalWords: [],
   currentWords: [],
@@ -19,6 +28,7 @@ const gameState = {
   interactionLocked: false,
 };
 
+/* Utility Functions */
 function normalizeWord(value) {
   return String(value || "").trim().toLowerCase();
 }
@@ -135,10 +145,10 @@ function playSound(sound) {
 
   sound.currentTime = 0;
   sound.play().catch(() => {
-    // Ignore browser timing/play interruptions.
   });
 }
 
+/* Modal Helpers */
 const MODAL_CLOSE_DURATION = 380;
 
 function showModal(modalElement) {
@@ -194,6 +204,7 @@ function getCardClass(entry, index) {
     : "incorrect";
 }
 
+/* Layout */
 function setResponsiveLayout() {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
@@ -315,6 +326,7 @@ function setResponsiveLayout() {
   );
 }
 
+/* Rendering */
 function renderWords() {
   orderList.innerHTML = "";
 
@@ -368,6 +380,7 @@ function evaluateAfterMove() {
   }
 }
 
+/* Drag and Drop */
 function handleMove(fromIndex, toIndex) {
   if (
     gameState.interactionLocked ||
@@ -458,6 +471,7 @@ function handleDrop(event) {
   removeDragGhost();
 }
 
+/* Game Flow */
 function restartGame() {
   hideModal(completionModal);
 
@@ -493,6 +507,7 @@ function initializeGame() {
   renderWords();
 }
 
+/* Event Handling */
 function handleEscapeKey(event) {
   if (event.key !== "Escape") {
     return;
@@ -509,4 +524,6 @@ playAgainButton.addEventListener("click", () => {
 });
 document.addEventListener("keydown", handleEscapeKey);
 window.addEventListener("resize", setResponsiveLayout);
+
+/* Initialization */
 document.addEventListener("DOMContentLoaded", initializeGame);

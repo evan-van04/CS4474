@@ -1,3 +1,11 @@
+/*
+  File: game-selection.css
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: Stylesheet for the Game Selection screen
+*/
+
+/* Variables */
 :root {
   --bg: #dbeef0;
   --header-bg: #f4f4f4;
@@ -7,6 +15,7 @@
   --shadow-soft: 0 8px 18px rgba(0, 0, 0, 0.14);
 }
 
+/* Base Styles */
 * {
   box-sizing: border-box;
 }
@@ -34,7 +43,7 @@ a {
   font: inherit;
 }
 
-/* page shell */
+/* Screen Layout */
 .game-selection-screen {
   height: 100vh;
   background: var(--bg);
@@ -42,7 +51,7 @@ a {
   grid-template-rows: 90px 1fr;
 }
 
-/* top navbar */
+/* Top Nav Bar */
 .top-bar {
   background: var(--header-bg);
   display: grid;
@@ -111,7 +120,7 @@ a {
   height: auto;
 }
 
-/* main content */
+/* Main Content */
 .game-selection-content {
   position: relative;
   display: flex;
@@ -132,7 +141,7 @@ a {
   text-shadow: 5px 5px 0 var(--title-shadow);
 }
 
-/* clouds */
+/* Decorative Clouds */
 .cloud {
   position: absolute;
   filter: drop-shadow(7px 7px 5px rgba(0, 0, 0, 0.18));
@@ -151,7 +160,7 @@ a {
   bottom: 58px;
 }
 
-/* centered 2x2 grid with equal spacing */
+/* Game Grid */
 .game-row {
   position: relative;
   z-index: 2;
@@ -194,24 +203,19 @@ a {
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
 }
 
-/* individual image sizing only */
 .game-card:nth-child(1) .game-image {
-  width: 320px; /* word search */
-}
+  width: 320px; }
 
 .game-card:nth-child(2) .game-image {
-  width: 320px; /* alphabetical */
-}
+  width: 320px; }
 
 .game-card:nth-child(3) .game-image {
-  width: 320px; /* mixed words */
-}
+  width: 320px; }
 
 .game-card:nth-child(4) .game-image {
-  width: 320px; /* missing letter */
-}
+  width: 320px; }
 
-/* medium screens */
+/* Responsive Layout */
 @media (max-width: 1280px) {
   body {
     overflow-y: auto;
@@ -257,7 +261,7 @@ a {
   }
 }
 
-/* mobile */
+/* Mobile Layout */
 @media (max-width: 760px) {
   body {
     overflow-y: auto;

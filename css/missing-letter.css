@@ -1,3 +1,11 @@
+/*
+  File: missing-letter.css
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: Stylesheet for the Missing Letter screen
+*/
+
+/* Missing Input */
 .missing-input {
   appearance: none;
   -webkit-appearance: none;

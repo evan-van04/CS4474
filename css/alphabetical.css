@@ -1,3 +1,11 @@
+/*
+  File: alphabetical.css
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: Stylesheet for the Alphabetical screen
+*/
+
+/* Variables */
 :root {
   --bg: #dbeef0;
   --header-bg: #f4f4f4;
@@ -40,6 +48,7 @@
   --alpha-reset-font-size: 1rem;
 }
 
+/* Base Styles */
 * {
   box-sizing: border-box;
 }
@@ -68,6 +77,7 @@ a {
   font: inherit;
 }
 
+/* Screen Layout */
 .alphabetical-screen {
   height: 100vh;
   background: var(--bg);
@@ -75,6 +85,7 @@ a {
   grid-template-rows: 90px 1fr;
 }
 
+/* Top Nav Bar */
 .top-bar {
   background: var(--header-bg);
   display: grid;
@@ -143,6 +154,7 @@ a {
   height: auto;
 }
 
+/* Main Content */
 .game-content {
   position: relative;
   display: flex;
@@ -173,6 +185,7 @@ a {
   opacity: 0.9;
 }
 
+/* Game Shell */
 .game-shell {
   position: relative;
   z-index: 2;
@@ -198,6 +211,7 @@ a {
   pointer-events: none;
 }
 
+/* Title and Instruction */
 .page-title {
   margin: 0 0 var(--alpha-title-gap);
   text-align: center;
@@ -219,6 +233,7 @@ a {
   color: var(--nav-blue);
 }
 
+/* Word List */
 .alphabetical-container {
   width: 100%;
   display: flex;
@@ -322,6 +337,7 @@ a {
   word-break: break-word;
 }
 
+/* Reset Button */
 .button-row {
   display: flex;
   justify-content: center;
@@ -371,6 +387,7 @@ a {
   color: #EE6B4D;
 }
 
+/* Empty State */
 .empty-state {
   margin-top: 14px;
   max-width: 620px;
@@ -399,6 +416,7 @@ a {
   padding: 0 22px;
 }
 
+/* Completion Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -493,6 +511,7 @@ a {
   transform: translateY(1px);
 }
 
+/* Responsive Layout */
 @media (max-width: 900px) {
   .top-bar {
     grid-template-columns: 80px 1fr 80px;

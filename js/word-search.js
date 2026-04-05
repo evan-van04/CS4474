@@ -1,4 +1,12 @@
+/*
+  File: word-search.js
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: JavaScript for the Word Search screen
+*/
+
 class WordSearchGame {
+  /* Setup */
   constructor() {
     this.words = [];
     this.grid = [];
@@ -48,6 +56,7 @@ class WordSearchGame {
     this.init();
   }
 
+  /* Game Flow */
   init() {
     this.words = this.getStoredWords();
 
@@ -63,6 +72,7 @@ class WordSearchGame {
     this.startGame();
   }
 
+  /* Data Helpers */
   getStoredWords() {
     let savedData = sessionStorage.getItem("spellingCentralWords");
 
@@ -110,15 +120,14 @@ class WordSearchGame {
   }
 
   playSound(sound) {
-  if (!sound) {
-    return;
-  }
+    if (!sound) {
+      return;
+    }
 
-  sound.currentTime = 0;
-  sound.play().catch(() => {
-    // Ignore play interruptions/browser timing issues.
-  });
-}
+    sound.currentTime = 0;
+    sound.play().catch(() => {
+    });
+  }
 
   startGame() {
     this.hideModal(this.completionModal);
@@ -145,6 +154,7 @@ class WordSearchGame {
     this.setResponsiveLayout();
   }
 
+  /* Layout */
   setResponsiveLayout() {
     const root = document.documentElement;
     const viewportWidth = window.innerWidth;
@@ -264,6 +274,7 @@ class WordSearchGame {
     root.style.setProperty("--instruction-font-size", `${instructionFontPx}px`);
   }
 
+  /* Grid Generation */
   generateGrid() {
     let success = false;
     let attempts = 0;
@@ -389,6 +400,7 @@ class WordSearchGame {
     return false;
   }
 
+  /* Rendering */
   renderGrid() {
     this.gridElement.innerHTML = "";
     this.gridElement.style.gridTemplateColumns = `repeat(${this.gridSize}, var(--cell-size))`;
@@ -437,6 +449,7 @@ class WordSearchGame {
     });
   }
 
+  /* Selection Handling */
   handleCellMouseDown(event, row, col) {
     event.preventDefault();
     this.isSelecting = true;
@@ -538,6 +551,7 @@ class WordSearchGame {
     }
   }
 
+  /* Selection Validation */
   validateSelection() {
     const selectedWord = this.selectedCells
       .map(([row, col]) => this.grid[row][col])
@@ -583,16 +597,16 @@ class WordSearchGame {
   completeWord(word) {
     this.foundWords.add(word);
     this.playSound(this.correctSound);
-    
+
     const colorClass = this.wordColorClasses.get(word) || this.getNextFoundColorClass();
     this.wordColorClasses.set(word, colorClass);
-    
+
     this.highlightSelection(colorClass);
     this.updateWordList();
-    
+
     window.setTimeout(() => {
       this.clearSelection();
-    
+
       if (this.foundWords.size === this.words.length) {
         this.showCompletionModal();
       }
@@ -621,52 +635,54 @@ class WordSearchGame {
     this.updateGridHighlight();
   }
 
+  /* Modal Helpers */
   showModal(modalElement) {
-  if (modalElement.hideTimer) {
-    window.clearTimeout(modalElement.hideTimer);
-    modalElement.hideTimer = null;
+    if (modalElement.hideTimer) {
+      window.clearTimeout(modalElement.hideTimer);
+      modalElement.hideTimer = null;
+    }
+
+    modalElement.classList.remove("hidden");
+    modalElement.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+
+    window.requestAnimationFrame(() => {
+      modalElement.classList.add("is-visible");
+    });
   }
 
-  modalElement.classList.remove("hidden");
-  modalElement.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
+  hideModal(modalElement) {
+    const modalCloseDuration = 380;
 
-  window.requestAnimationFrame(() => {
-    modalElement.classList.add("is-visible");
-  });
-}
+    if (modalElement.classList.contains("hidden")) {
+      modalElement.classList.remove("is-visible");
+      modalElement.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      return;
+    }
 
-hideModal(modalElement) {
-  const modalCloseDuration = 380;
-
-  if (modalElement.classList.contains("hidden")) {
     modalElement.classList.remove("is-visible");
     modalElement.setAttribute("aria-hidden", "true");
     document.body.style.overflow = "";
-    return;
-  }
 
-  modalElement.classList.remove("is-visible");
-  modalElement.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
-
-  if (modalElement.hideTimer) {
-    window.clearTimeout(modalElement.hideTimer);
-  }
-
-  modalElement.hideTimer = window.setTimeout(() => {
-    if (!modalElement.classList.contains("is-visible")) {
-      modalElement.classList.add("hidden");
+    if (modalElement.hideTimer) {
+      window.clearTimeout(modalElement.hideTimer);
     }
-    modalElement.hideTimer = null;
-  }, modalCloseDuration);
-}
+
+    modalElement.hideTimer = window.setTimeout(() => {
+      if (!modalElement.classList.contains("is-visible")) {
+        modalElement.classList.add("hidden");
+      }
+      modalElement.hideTimer = null;
+    }, modalCloseDuration);
+  }
 
   showCompletionModal() {
     this.completionMessage.textContent = "Awesome job! You finished the word search!";
     this.showModal(this.completionModal);
   }
 
+  /* Event Binding */
   attachGlobalEventListeners() {
     document.addEventListener("mouseup", () => this.handleGlobalMouseUp());
 
@@ -692,6 +708,7 @@ hideModal(modalElement) {
   }
 }
 
+/* Initialization */
 window.addEventListener("load", () => {
   new WordSearchGame();
 });
