@@ -13,5 +13,5 @@ Option 2: Build from source
 
 Key Notes:
 
-1. All files must remain in their original folder structure (assets/, css/, html/, js/, sfx/) for the prototype to function correctly
+1. All files must remain in their original folder structure and with their original naming conventions (assets/, css/, html/, js/, sfx/) for the prototype to function correctly
 2. Do not open individual game screens directly, ensure you always begin from home-screen.html

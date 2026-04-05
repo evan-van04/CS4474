@@ -1,3 +1,10 @@
+/*
+  File: word-bank.js
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: JavaScript for the shared word bank data used across the four game screens
+*/
+
 const WORD_BANK = [
   { word: "cat", definition: "A small pet that purrs and likes to chase things." },
   { word: "dog", definition: "A pet that barks and can be a good friend." },

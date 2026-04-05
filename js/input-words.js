@@ -1,6 +1,14 @@
+/*
+  File: input-words.js
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: JavaScript for the Input Words screen
+*/
+
 const MINIMUM_REQUIRED_WORDS = 5;
 const STORAGE_KEY = "spellingCentralWords";
 
+/* DOM Elements */
 const inputs = Array.from(document.querySelectorAll(".word-input"));
 const confirmButton = document.getElementById("confirmButton");
 const clearButton = document.getElementById("clearButton");
@@ -14,8 +22,10 @@ const invalidWordModal = document.getElementById("invalidWordModal");
 const invalidWordMessage = document.getElementById("invalidWordMessage");
 const closeInvalidWordModalButton = document.getElementById("closeInvalidWordModal");
 
+/* Validation State */
 let validWordSet = new Set();
 
+/* Utility Functions */
 function normalizeWord(value) {
   return value.trim().toLowerCase();
 }
@@ -94,6 +104,7 @@ function clearWordsFromStorage() {
   sessionStorage.removeItem(STORAGE_KEY);
 }
 
+/* Modal Helpers */
 const MODAL_CLOSE_DURATION = 380;
 
 function showModal(modalElement) {
@@ -150,6 +161,7 @@ function hideModal(modalElement) {
   }, MODAL_CLOSE_DURATION);
 }
 
+/* Validation Helpers */
 function showCountError(message) {
   countErrorMessage.textContent = message;
   showModal(countErrorModal);
@@ -209,6 +221,7 @@ function buildDuplicateWordsMessage(duplicateWords) {
   return `These are duplicate words: ${duplicateList}. Please enter each word only once.`;
 }
 
+/* Word Actions */
 function getRandomWords(count) {
   if (!Array.isArray(WORD_BANK) || WORD_BANK.length === 0) {
     return [];
@@ -292,6 +305,7 @@ function handleInputChange(event) {
   saveWordsToStorage();
 }
 
+/* Event Handling */
 function handleEscapeKey(event) {
   if (event.key !== "Escape") {
     return;
@@ -340,6 +354,7 @@ window.addEventListener("beforeunload", () => {
   saveWordsToStorage();
 });
 
+/* Initialization */
 function initializeInputWordsPage() {
   buildWordSet();
 

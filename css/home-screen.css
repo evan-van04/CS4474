@@ -1,3 +1,11 @@
+/*
+  File: home-screen.css
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: Stylesheet for the Home screen
+*/
+
+/* Variables */
 :root {
   --bg: #dbeef0;
   --button-fill: #9fc1dc;
@@ -5,6 +13,7 @@
   --button-text: #44618f;
 }
 
+/* Base Styles */
 * {
   box-sizing: border-box;
 }
@@ -31,6 +40,7 @@ button {
   font: inherit;
 }
 
+/* Screen Layout */
 .home-screen {
   position: relative;
   width: 100%;
@@ -38,6 +48,7 @@ button {
   overflow: hidden;
 }
 
+/* Decorative Clouds */
 .cloud {
   position: absolute;
   filter: drop-shadow(8px 8px 6px rgba(0, 0, 0, 0.18));
@@ -61,6 +72,7 @@ button {
   top: 25.6%;
 }
 
+/* Hero Section */
 .hero {
   position: absolute;
   left: 50%;
@@ -88,6 +100,7 @@ button {
   text-decoration: none;
 }
 
+/* Primary Button */
 .play-button {
   margin-top: clamp(90px, 13vh, 125px);
   width: clamp(220px, 18.7vw, 283px);
@@ -114,6 +127,7 @@ button {
   transform: translateY(1px) scale(1.05);
 }
 
+/* Accent Illustration */
 .kids-balloon {
   position: absolute;
   width: clamp(280px, 28vw, 436px);
@@ -122,6 +136,7 @@ button {
   animation: float 3s ease-in-out infinite;
 }
 
+/* Floating Animation */
 @keyframes float {
   0%, 100% {
     transform: translateY(0px);
@@ -131,6 +146,7 @@ button {
   }
 }
 
+/* Tablet Layout */
 @media (max-width: 900px) {
   .hero {
     width: min(90vw, 590px);
@@ -163,6 +179,7 @@ button {
   }
 }
 
+/* Mobile Layout */
 @media (max-width: 640px) {
   body {
     overflow-y: auto;

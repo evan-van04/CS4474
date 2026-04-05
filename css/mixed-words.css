@@ -1,3 +1,11 @@
+/*
+  File: mixed-words.css
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: Stylesheet for the Mixed Words screen
+*/
+
+/* Variables */
 :root {
   --bg: #dbeef0;
   --header-bg: #f4f4f4;
@@ -34,6 +42,7 @@
   --mw-progress-font-size: 2rem;
 }
 
+/* Base Styles */
 * {
   box-sizing: border-box;
 }
@@ -61,6 +70,7 @@ a {
   font: inherit;
 }
 
+/* Screen Layout */
 .mixed-words-screen {
   height: 100vh;
   background: var(--bg);
@@ -68,6 +78,7 @@ a {
   grid-template-rows: 90px 1fr;
 }
 
+/* Top Nav Bar */
 .top-bar {
   background: var(--header-bg);
   display: grid;
@@ -136,6 +147,7 @@ a {
   height: auto;
 }
 
+/* Main Content */
 .mixed-words-content {
   position: relative;
   display: flex;
@@ -146,6 +158,7 @@ a {
   overflow: hidden;
 }
 
+/* Decorative Clouds */
 .cloud {
   position: absolute;
   filter: drop-shadow(7px 7px 5px rgba(0, 0, 0, 0.18));
@@ -166,6 +179,7 @@ a {
   opacity: 0.9;
 }
 
+/* Game Shell */
 .game-shell {
   position: relative;
   z-index: 2;
@@ -186,6 +200,7 @@ a {
   pointer-events: none;
 }
 
+/* Title and Instruction */
 .page-title {
   margin: 0 0 var(--mw-title-gap);
   text-align: center;
@@ -207,6 +222,7 @@ a {
   color: var(--nav-blue);
 }
 
+/* Letter Tiles */
 .letters-wrap {
   width: 100%;
   display: flex;
@@ -273,6 +289,7 @@ a {
   color: #ffffff;
 }
 
+/* Hint and Progress */
 .hint-bubble,
 .progress-pill {
   display: inline-flex;
@@ -307,6 +324,7 @@ a {
   color: var(--dark-blue);
 }
 
+/* Completion Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -401,6 +419,7 @@ a {
   transform: translateY(1px);
 }
 
+/* Responsive Layout */
 @media (max-width: 900px) {
   .top-bar {
     grid-template-columns: 80px 1fr 80px;

@@ -1,3 +1,11 @@
+/*
+  File: word-search.css
+  Group: Group 5
+  Course: CS 4474B/9552B
+  Description: Stylesheet for the Word Search screen
+*/
+
+/* Variables */
 :root {
   --bg: #dbeef0;
   --header-bg: #f4f4f4;
@@ -33,6 +41,7 @@
   --instruction-font-size: 1rem;
 }
 
+/* Base Styles */
 * {
   box-sizing: border-box;
 }
@@ -61,6 +70,7 @@ input {
   font: inherit;
 }
 
+/* Screen Layout */
 .word-search-screen {
   height: 100vh;
   background: var(--bg);
@@ -68,6 +78,7 @@ input {
   grid-template-rows: 90px 1fr;
 }
 
+/* Top Nav Bar */
 .top-bar {
   background: var(--header-bg);
   display: grid;
@@ -136,6 +147,7 @@ input {
   height: auto;
 }
 
+/* Main Content */
 .game-content {
   display: flex;
   justify-content: center;
@@ -154,6 +166,7 @@ input {
   justify-content: center;
 }
 
+/* Title and Layout */
 .page-title {
   margin: 0 0 var(--title-margin-bottom);
   text-align: center;
@@ -177,6 +190,7 @@ input {
   flex: 0 1 auto;
 }
 
+/* Word Search Grid */
 .grid-section {
   display: flex;
   justify-content: center;
@@ -321,6 +335,7 @@ input {
   border-color: var(--invalid-stroke) !important;
 }
 
+/* Word Bank */
 .word-bank-wrapper {
   display: flex;
   flex-direction: column;
@@ -384,6 +399,7 @@ input {
   color: var(--nav-blue);
 }
 
+/* Completion Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -478,6 +494,7 @@ input {
   transform: translateY(1px);
 }
 
+/* Responsive Layout */
 @media (max-width: 900px) {
   .top-bar {
     grid-template-columns: 80px 1fr 80px;
