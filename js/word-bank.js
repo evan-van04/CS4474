@@ -911,7 +911,7 @@ const WORD_BANK = [
   { word: "firefighter", definition: "A person who puts out fires and helps in emergencies." },
   { word: "police", definition: "People whose job is to help keep others safe and follow laws." },
   { word: "mailbox", definition: "A box where letters are sent or collected." },
-  { word: "neighbor", definition: "A person who lives near you." },
+  { word: "neighbour", definition: "A person who lives near you." },
   { word: "friendship", definition: "A close caring bond between friends." },
   { word: "family", definition: "A group of people related to one another or living together." },
   { word: "team", definition: "A group working or playing together." },
