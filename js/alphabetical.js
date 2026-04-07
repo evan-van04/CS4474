@@ -54,10 +54,9 @@ function shuffleArray(items) {
   return copy;
 }
 
-function moveItem(array, fromIndex, toIndex) {
+function swapItem(array, fromIndex, toIndex) {
   const copy = [...array];
-  const [moved] = copy.splice(fromIndex, 1);
-  copy.splice(toIndex, 0, moved);
+  [copy[fromIndex], copy[toIndex]] = [copy[toIndex], copy[fromIndex]];
   return copy;
 }
 
@@ -395,7 +394,7 @@ function handleMove(fromIndex, toIndex) {
     return;
   }
 
-  gameState.currentWords = moveItem(gameState.currentWords, fromIndex, toIndex);
+  gameState.currentWords = swapItem(gameState.currentWords, fromIndex, toIndex);
   gameState.hasMadeFirstMove = true;
   evaluateAfterMove();
 }
